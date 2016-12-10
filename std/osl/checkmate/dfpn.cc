@@ -97,7 +97,7 @@ namespace osl
 {
   namespace checkmate
   {
-    inline int log2(uint32_t n) 
+    inline int log2(uint32_t n)
     {
       return (n <= 1) ? 1 : 32 - __builtin_clz(n);
     }
@@ -106,11 +106,11 @@ namespace osl
       return log2(n);
     }
 #ifdef DFPN_DEBUG
-    struct NodeIDTable : public std::unordered_map<HashKey, int, std::hash<HashKey>> 
+    struct NodeIDTable : public std::unordered_map<HashKey, int, stl::hash<HashKey>>
     {
       size_t cur;
       NodeIDTable() : cur(0) {}
-      int id(const HashKey& key) 
+      int id(const HashKey& key)
       {
 	int& ret = (*this)[key];
 	if (ret == 0)
@@ -127,7 +127,7 @@ namespace osl
       ~NodeCountTable()
       {
 	std::cerr << "timer " << timer << "\n";
-	vector<std::pair<int,int> > all; 
+	vector<std::pair<int,int> > all;
 	all.reserve(size());
 	for (const auto& v: *this)
 	  all.push_back(std::make_pair(-v.second.first, v.first));
@@ -154,13 +154,13 @@ namespace osl
       int distance;
       bool visiting;
       size_t node_count;
-      DfpnPathRecord() 
+      DfpnPathRecord()
 	: distance(MaxDistance), visiting(false), node_count(0)
       {
       }
     };
     template <bool Enabled=true>
-    struct DfpnVisitLock 
+    struct DfpnVisitLock
     {
       DfpnVisitLock(const DfpnVisitLock&) = delete;
       DfpnVisitLock& operator=(const DfpnVisitLock&) = delete;
@@ -194,20 +194,20 @@ namespace osl
 	    assert(p->second.distance != DfpnPathRecord::MaxDistance);
 	    ret = p;
 	    if (loop || p->second.visiting) break;
-	  } 
+	  }
 	  if (! p->second.visiting)
 	    continue;
 	  if (p->first.isSuperiorOrEqualTo(black)) {
 	    if (Attack == BLACK) {
 	      loop = BadAttackLoop;
 	      if (ret != end()) break;
-	    } 
-	  } 
-	  else if (black.isSuperiorOrEqualTo(p->first)) {  
+	    }
+	  }
+	  else if (black.isSuperiorOrEqualTo(p->first)) {
 	    if (Attack == WHITE) {
 	      loop = BadAttackLoop;
 	      if (ret != end()) break;
-	    }	    
+	    }
 	  }
 	}
 	return ret;
@@ -239,7 +239,7 @@ namespace osl
       }
       static bool precious(const DfpnPathRecord& record, size_t threshold)
       {
-	return record.visiting 
+	return record.visiting
 	  || record.node_count > threshold
 	  || (! record.twin_list.empty() && record.node_count > threshold - 10);
       }
@@ -266,9 +266,9 @@ namespace osl
 	return removed;
       }
     };
-    class DfpnPathTable 
+    class DfpnPathTable
     {
-      typedef std::unordered_map<BoardKey, DfpnPathList, std::hash<BoardKey>> table_t;
+      typedef std::unordered_map<BoardKey, DfpnPathList, stl::hash<BoardKey>> table_t;
       table_t table;
       size_t total_size;
       size_t gc_threshold;
@@ -277,7 +277,7 @@ namespace osl
       {
       }
       template <Player Attack>
-      DfpnPathRecord *allocate(const HashKey& key, int depth, LoopToDominance& loop) 
+      DfpnPathRecord *allocate(const HashKey& key, int depth, LoopToDominance& loop)
       {
 	DfpnPathList& l = table[key.boardKey()];
 	return l.allocate<Attack>(key.blackStand(), depth, loop,
@@ -286,7 +286,7 @@ namespace osl
       const DfpnPathRecord *probe(const HashKey& key) const
       {
 	table_t::const_iterator p = table.find(key.boardKey());
-	if (p == table.end()) 
+	if (p == table.end())
 	  return 0;
 	return p->second.probe(key.blackStand());
       }
@@ -316,7 +316,7 @@ namespace osl
       if (! move.isCapture())
       {
 	const Square from=move.from(), to=move.to();
-	const int a = (state.countEffect(attacker,to) 
+	const int a = (state.countEffect(attacker,to)
 		       + (from.isPieceStand() ? 1 : 0));
 	int d = state.countEffect(alt(attacker),to);
 	if (a <= d)
@@ -404,7 +404,7 @@ struct osl::checkmate::Dfpn::Node : NodeBase
     assert(child.proof_disproof.isCheckmateSuccess());
     record.proof_disproof = child.proof_disproof;
     record.best_move = moves[best_i];
-    const PieceStand proof_pieces 
+    const PieceStand proof_pieces
       = ProofPieces::attack(child.proofPieces(), record.best_move,
 			    record.stands[attack]);
     record.setProofPieces(proof_pieces);
@@ -416,12 +416,12 @@ struct osl::checkmate::Dfpn::Node : NodeBase
     assert(! child.proof_disproof.isLoopDetection());
     record.proof_disproof = child.proof_disproof;
     record.best_move = moves[best_i];
-    const PieceStand disproof_pieces 
+    const PieceStand disproof_pieces
       = DisproofPieces::defense(child.disproofPieces(), record.best_move,
 				record.stands[alt(attack)]);
     record.setDisproofPieces(disproof_pieces);
   }
-  void setCheckmateDefense(Player attack, const NumEffectState& state) 
+  void setCheckmateDefense(Player attack, const NumEffectState& state)
   {
     assert(moves.size());
     assert(record.proof_disproof.isCheckmateSuccess());
@@ -443,7 +443,7 @@ struct osl::checkmate::Dfpn::Node : NodeBase
 					  result);
     record.setDisproofPieces(result);
   }
-  void setCheckmateChildInDefense(size_t i) 
+  void setCheckmateChildInDefense(size_t i)
   {
     assert(children[i].proof_disproof.isCheckmateSuccess());
 #ifdef MEMORIZE_SOLVED_IN_BITSET
@@ -453,7 +453,7 @@ struct osl::checkmate::Dfpn::Node : NodeBase
     record.proof_pieces_candidate
       = record.proof_pieces_candidate.max(children[i].proofPieces());
   }
-  void setNoCheckmateChildInAttack(size_t i) 
+  void setNoCheckmateChildInAttack(size_t i)
   {
     assert(children[i].proof_disproof.isCheckmateFail());
 #ifdef MEMORIZE_SOLVED_IN_BITSET
@@ -513,7 +513,7 @@ struct osl::checkmate::Dfpn::Tree
     next.clear();
     next.hash_key = next_hash;
   }
-  void setNoCheckmateChildInAttack(size_t best_i) 
+  void setNoCheckmateChildInAttack(size_t best_i)
   {
     Node &node = this->node[depth];
     node.setNoCheckmateChildInAttack(best_i);
@@ -645,7 +645,7 @@ struct osl::checkmate::DfpnTable::List : public std::forward_list<DfpnRecord>
 	}
 	if (! value.proof_disproof.isFinal()) {
 	  value.min_pdp = std::min(value.min_pdp, record.min_pdp);
-	  value.proof_pieces_candidate 
+	  value.proof_pieces_candidate
 	    = value.proof_pieces_candidate.max(record.proof_pieces_candidate);
 	  value.dag_moves |= record.dag_moves;
 	  value.solved |= record.solved;
@@ -816,7 +816,7 @@ List::probe(const HashKey& key, PieceStand white_stand) const
   }
 #ifdef INITIAL_DOMINANCE
   if (result.proof_disproof == ProofDisproof(1,1)) {
-      result.proof_disproof = ProofDisproof(std::min(proof_ll, InitialDominanceProofMax), 
+      result.proof_disproof = ProofDisproof(std::min(proof_ll, InitialDominanceProofMax),
 					    std::min(disproof_ll, InitialDominanceDisproofMax));
       result.node_count++;	// not suitable for proof_average
   }
@@ -850,7 +850,7 @@ List::findProofOracle(const HashKey& key, PieceStand white_stand, Move last_move
   const PieceStand attack_stand = (A == BLACK) ? key.blackStand() : white_stand;
   DfpnRecord result(key.blackStand(), white_stand);
   for (const DfpnRecord& record: *this) {
-    if (! record.proof_disproof.isCheckmateSuccess()) 
+    if (! record.proof_disproof.isCheckmateSuccess())
       continue;
     if (attack_stand.isSuperiorOrEqualTo(record.proofPieces())) {
       result.setFrom(record);
@@ -872,7 +872,7 @@ List::showProofOracles(const HashKey& key, PieceStand white_stand, Move last_mov
 #endif
   const PieceStand attack_stand = (A == BLACK) ? key.blackStand() : white_stand;
   for (const DfpnRecord& record: *this) {
-    if (! record.proof_disproof.isCheckmateSuccess()) 
+    if (! record.proof_disproof.isCheckmateSuccess())
       continue;
     if (attack_stand.isSuperiorOrEqualTo(record.proofPieces())) {
       std::cerr << record.last_move << " " << record.best_move << " " << record.node_count << " " << record.proofPieces()
@@ -882,7 +882,7 @@ List::showProofOracles(const HashKey& key, PieceStand white_stand, Move last_mov
 }
 #endif
 
-struct osl::checkmate::DfpnTable::Table : public std::unordered_map<BoardKey, List, std::hash<BoardKey>> 
+struct osl::checkmate::DfpnTable::Table : public std::unordered_map<BoardKey, List, stl::hash<BoardKey>>
 {
   Player attack;
   explicit Table(Player a=BLACK) : attack(a) {}
@@ -890,16 +890,16 @@ struct osl::checkmate::DfpnTable::Table : public std::unordered_map<BoardKey, Li
 
 
 osl::checkmate::
-DfpnTable::DfpnTable(Player attack) 
+DfpnTable::DfpnTable(Player attack)
   : table(new Table[DIVSIZE]), total_size(0), dfpn_max_depth(0),
-    growth_limit(GrowthLimitInfty), 
-    gc_threshold(10)    
+    growth_limit(GrowthLimitInfty),
+    gc_threshold(10)
 {
   setAttack(attack);
 }
 
 osl::checkmate::
-DfpnTable::DfpnTable() 
+DfpnTable::DfpnTable()
   : table(new Table[DIVSIZE]), total_size(0), dfpn_max_depth(0)
 {
 }
@@ -939,7 +939,7 @@ DfpnTable::maxDepth() const
 }
 
 void osl::checkmate::
-DfpnTable::setAttack(Player a) 
+DfpnTable::setAttack(Player a)
 {
   assert(size() == 0);
   for (int i=0; i<DIVSIZE; ++i)
@@ -1006,7 +1006,7 @@ DfpnTable::probe(const HashKey& key, PieceStand white_stand) const
   SCOPED_LOCK(lk,mutex[i]);
 #endif
   const List *l = find<Attack>(key, i);
-  if (l == 0) 
+  if (l == 0)
     return DfpnRecord(key.blackStand(), white_stand);
   return l->probe<Attack>(key, white_stand);
 }
@@ -1051,7 +1051,7 @@ DfpnTable::showProofOracles(const HashKey& key, PieceStand white_stand, Move las
   SCOPED_LOCK(lk,mutex[i]);
 #endif
   const List *l = find<Attack>(key, i);
-  if (l == 0) 
+  if (l == 0)
     return;
   return l->showProofOracles<Attack>(key, white_stand, last_move);
 }
@@ -1065,7 +1065,7 @@ DfpnTable::estimateNodeCount(const HashKey& key, bool dominance_max) const
   SCOPED_LOCK(lk,mutex[i]);
 #endif
   const List *l = find(key, i);
-  if (l == 0) 
+  if (l == 0)
     return 0;
   return l->estimateNodeCount(key, dominance_max);
 }
@@ -1262,7 +1262,7 @@ struct osl::checkmate::Dfpn::CallAttack
   CallAttack(Dfpn *s) : search(s)
   {
   }
-  void operator()(Square) const 
+  void operator()(Square) const
   {
     search->attack<P>();
   }
@@ -1275,7 +1275,7 @@ struct osl::checkmate::Dfpn::CallDefense
   CallDefense(Dfpn *s) : search(s)
   {
   }
-  void operator()(Square) const 
+  void operator()(Square) const
   {
     search->defense<P>();
   }
@@ -1295,7 +1295,7 @@ osl::checkmate::Dfpn::~Dfpn()
 
 void osl::checkmate::Dfpn::setTable(DfpnTable *new_table)
 {
-  table = new_table; 
+  table = new_table;
   table->setMaxDepth(tree->MaxDepth);
   if (tree->MaxDepth > EnableGCDepth
       && table->growthLimit() < GrowthLimitInfty)
@@ -1324,7 +1324,7 @@ void osl::checkmate::Dfpn::setIllegal(const HashKey& key, PieceStand white_stand
   table->store(key, result);
 }
 
-const osl::checkmate::ProofDisproof 
+const osl::checkmate::ProofDisproof
 osl::checkmate::
 Dfpn::hasCheckmateMove(const NumEffectState& state, const HashKey& key,
 		       const PathEncoding& path, size_t limit, Move& best_move, Move last_move,
@@ -1334,7 +1334,7 @@ Dfpn::hasCheckmateMove(const NumEffectState& state, const HashKey& key,
   return hasCheckmateMove(state, key, path, limit, best_move, dummy, last_move, pv);
 }
 
-const osl::checkmate::ProofDisproof 
+const osl::checkmate::ProofDisproof
 osl::checkmate::
 Dfpn::hasCheckmateMove(const NumEffectState& state, const HashKey& key,
 		       const PathEncoding& path, size_t limit, Move& best_move, PieceStand& proof_pieces,
@@ -1344,7 +1344,7 @@ Dfpn::hasCheckmateMove(const NumEffectState& state, const HashKey& key,
   if (! table)
     return ProofDisproof();
   path_table->clear();
-  
+
   node_count = 0;
   node_count_limit = limit;
 
@@ -1388,7 +1388,7 @@ Dfpn::hasCheckmateMove(const NumEffectState& state, const HashKey& key,
   return root.record.proof_disproof;
 }
 
-const osl::checkmate::ProofDisproof 
+const osl::checkmate::ProofDisproof
 osl::checkmate::
 Dfpn::tryProof(const NumEffectState& state, const HashKey& key,
 	       const PathEncoding& path, const ProofOracle& oracle, size_t oracle_id, Move& best_move,
@@ -1396,7 +1396,7 @@ Dfpn::tryProof(const NumEffectState& state, const HashKey& key,
 {
   return tryProofMain<true>(state, key, path, oracle, oracle_id, best_move, last_move);
 }
-const osl::checkmate::ProofDisproof 
+const osl::checkmate::ProofDisproof
 osl::checkmate::
 Dfpn::tryProofLight(const NumEffectState& state, const HashKey& key,
 		    const PathEncoding& path, const ProofOracle& oracle, size_t oracle_id, Move& best_move,
@@ -1408,7 +1408,7 @@ Dfpn::tryProofLight(const NumEffectState& state, const HashKey& key,
 static const size_t root_proof_simulation_limit = 999999999;// large enough
 
 template <bool UseTable>
-const osl::checkmate::ProofDisproof 
+const osl::checkmate::ProofDisproof
 osl::checkmate::
 Dfpn::tryProofMain(const NumEffectState& state, const HashKey& key,
 		   const PathEncoding& path, const ProofOracle& oracle, size_t oracle_id, Move& best_move,
@@ -1418,7 +1418,7 @@ Dfpn::tryProofMain(const NumEffectState& state, const HashKey& key,
   if (! table)
     return ProofDisproof();
   path_table->clear();
-  
+
   tree->state.copyFrom(state);
   node_count = tree->depth = 0;
   node_count_limit = root_proof_simulation_limit;
@@ -1431,7 +1431,7 @@ Dfpn::tryProofMain(const NumEffectState& state, const HashKey& key,
   root.white_stand = PieceStand(WHITE, state);
   root.moved = last_move;
 
-  root.record = (state.turn() == BLACK) 
+  root.record = (state.turn() == BLACK)
     ? table->probe<BLACK>(root.hash_key, root.white_stand)
     : table->probe<WHITE>(root.hash_key, root.white_stand);
   if (root.record.proof_disproof.isFinal() || root.record.tried_oracle > oracle_id) {
@@ -1466,8 +1466,8 @@ Dfpn::tryProofMain(const NumEffectState& state, const HashKey& key,
 
 const osl::checkmate::ProofDisproof
 osl::checkmate::
-Dfpn::hasEscapeMove(const NumEffectState& state, 
-		    const HashKey& key, const PathEncoding& path, 
+Dfpn::hasEscapeMove(const NumEffectState& state,
+		    const HashKey& key, const PathEncoding& path,
 		    size_t limit, Move last_move)
 {
   assert(table);
@@ -1479,7 +1479,7 @@ Dfpn::hasEscapeMove(const NumEffectState& state,
   node_count = tree->depth = 0;
   node_count_limit = limit;
 
-  Node& root = tree->node[0];  
+  Node& root = tree->node[0];
   try {
     tree->state.copyFrom(state);
     tree->depth = 0;
@@ -1518,7 +1518,7 @@ Dfpn::hasEscapeMove(const NumEffectState& state,
 
 namespace osl
 {
-  namespace 
+  namespace
   {
     typedef std::tuple<int,int,int> tuple_t;
     template <Player Turn>
@@ -1555,7 +1555,7 @@ void osl::checkmate::
 Dfpn::sort(const NumEffectState& state, DfpnMoveVector& moves)
 {
 #ifdef MEMORIZE_SOLVED_IN_BITSET
-  int last_sorted = 0, cur = 0; 
+  int last_sorted = 0, cur = 0;
   Ptype last_ptype = PTYPE_EMPTY;
   for (;(size_t)cur < moves.size(); ++cur) {
     if (moves[cur].isDrop() || moves[cur].oldPtype() == last_ptype)
@@ -1568,7 +1568,7 @@ Dfpn::sort(const NumEffectState& state, DfpnMoveVector& moves)
 #endif
 }
 
-template <osl::Player P> 
+template <osl::Player P>
 void osl::checkmate::
 Dfpn::generateCheck(const NumEffectState& state, DfpnMoveVector& moves, bool &has_pawn_checkmate)
 {
@@ -1611,7 +1611,7 @@ Dfpn::findDagSource(const HashKey& terminal_key,
   PieceStand white_stand = terminal_stand;
   HashKey key = terminal_key;
   DfpnRecord cur = terminal_record;
-  
+
   for (int d=offset; d<std::min(tree->MaxDepth,MaxDagTraceDepth); ++d) {
     if (! cur.last_move.isNormal())
       return;
@@ -1646,12 +1646,12 @@ Dfpn::findDagSource(const HashKey& terminal_key,
 void osl::checkmate::
 Dfpn::findDagSource()
 {
-  findDagSource(tree->node[tree->depth].hash_key, tree->node[tree->depth].record, 
+  findDagSource(tree->node[tree->depth].hash_key, tree->node[tree->depth].record,
 		tree->node[tree->depth].white_stand, 1);
 }
 
 // P は攻撃側
-template <osl::Player P> 
+template <osl::Player P>
 void osl::checkmate::
 Dfpn::attack()
 {
@@ -1794,7 +1794,7 @@ Dfpn::attack()
   bool has_pawn_checkmate=false;
   generateCheck<P>(tree->state, node.moves,has_pawn_checkmate);
   if (node.moves.empty()) {
-    record.setDisproofPieces(DisproofPieces::leaf(tree->state, alt(P), 
+    record.setDisproofPieces(DisproofPieces::leaf(tree->state, alt(P),
 						  record.stands[alt(P)]));
     if(has_pawn_checkmate)
       record.proof_disproof = ProofDisproof::PawnCheckmate();
@@ -1809,7 +1809,7 @@ Dfpn::attack()
   assert(node.children.empty());
   {
     node.allocate(node.moves.size());
-    const King8Info info_modified 
+    const King8Info info_modified
       = Edge_Table.resetEdgeFromLiberty(alt(P), tree->king(alt(P)).square(), King8Info(tree->state.Iking8Info(alt(P))));
     for (size_t i=0; i<node.moves.size(); ++i) {
 #ifdef MEMORIZE_SOLVED_IN_BITSET
@@ -1820,7 +1820,7 @@ Dfpn::attack()
       node.children[i] = table->probe<P>(new_key, node.nextWhiteStand(P, node.moves[i]));
       if (node.children[i].proof_disproof == ProofDisproof(1,1)) {
 	unsigned int proof, disproof;
-	LibertyEstimator::attackH(P, tree->state, info_modified, 
+	LibertyEstimator::attackH(P, tree->state, info_modified,
 				  node.moves[i], proof, disproof);
 #ifndef MINIMAL
 	if (HashRandomPair::initialized()) {
@@ -1903,7 +1903,7 @@ Dfpn::attack()
       if (i > 0 && min_proof < ProofDisproof::PROOF_LIMIT
 	  && node.moves[i].fromTo() == node.moves[i-1].fromTo()
 	  && ! node.moves[i].isDrop()) {
-	// ignore a no-promote move until it becomes the last one, if there is the corresponding promote move  
+	// ignore a no-promote move until it becomes the last one, if there is the corresponding promote move
 	assert(node.moves[i].ptype() == node.moves[i-1].oldPtype());
 	record.dag_moves |= ((1ull << i) | (1ull << (i-1)));
 	if (node.threshold.proof() < NoPromoeIgnoreProofThreshold
@@ -1922,13 +1922,13 @@ Dfpn::attack()
 	}
 #endif
       }
-      if (node.children_path[i]) {	
+      if (node.children_path[i]) {
 	if (node.isLoop(i)) {
 	  node.children[i].proof_disproof = ProofDisproof::LoopDetection();
 	  assert(proof < ProofDisproof::LOOP_DETECTION_PROOF);
 	  proof = ProofDisproof::LOOP_DETECTION_PROOF;
 	  disproof = 0;
-	} 
+	}
 	else if (! node.children[i].proof_disproof.isFinal()) {
 	  max_children_depth = std::max(max_children_depth, node.children_path[i]->distance);
 #ifdef NAGAI_DAG_TEST
@@ -2045,9 +2045,9 @@ Dfpn::attack()
     if (disproof_c > node.threshold.disproof())
       disproof_c = node.children[next_i].disproof()
 	+ (node.threshold.disproof() - sum_disproof);
-#endif    
+#endif
     next.threshold = ProofDisproof(std::min(min_proof2+proof_average, (size_t)node.threshold.proof())
-				   - node.proof_cost[next_i], 
+				   - node.proof_cost[next_i],
 				   disproof_c);
     CallDefense<P> helper(this);
     tree->depth += 1;
@@ -2068,7 +2068,7 @@ Dfpn::attack()
       if (parallel_shared)
 	parallel_shared->restartThreads(node.hash_key, tree->depth, record.working_threads);
       return;
-    }      
+    }
     else if (next.record.proof_disproof.isCheckmateFail()
 	     && ! next.record.proof_disproof.isLoopDetection())
       tree->setNoCheckmateChildInAttack(next_i);
@@ -2089,26 +2089,26 @@ Dfpn::attack()
       else {
 	if (parallel_shared->data[thread_id].restart_key == node.hash_key) {
 	  record = table->probe<P>(node.hash_key, node.white_stand);
-	  if (! record.proof_disproof.isFinal()) 
+	  if (! record.proof_disproof.isFinal())
 	    continue;
 	  parallel_shared->data[thread_id].clear();
 	}
 	table->leaveWorking(node.hash_key, thread_id);
 	return;
       }
-    } 
+    }
   }
 }
 
-template <osl::Player P> 
+template <osl::Player P>
 void osl::checkmate::
-Dfpn::generateEscape(const NumEffectState& state, bool need_full_width, 
+Dfpn::generateEscape(const NumEffectState& state, bool need_full_width,
 		     Square last_to, DfpnMoveVector& moves)
 {
   assert(moves.empty());
   const Player AltP=alt(P);
 #ifdef GRAND_PARENT_DELAY
-  const bool delay_node = last_to != Square() 
+  const bool delay_node = last_to != Square()
       && state.hasEffectAt(alt(P), last_to)
       && (state.hasEffectNotBy(alt(P), state.kingPiece(alt(P)), last_to)
 	  || ! state.hasEffectAt(P, last_to));
@@ -2127,7 +2127,7 @@ Dfpn::generateEscape(const NumEffectState& state, bool need_full_width,
     sort<AltP>(state, moves);
 #endif
   }
-  else 
+  else
 #endif
   {
     move_generator::GenerateEscape<AltP>::
@@ -2178,7 +2178,7 @@ Dfpn::grandParentSimulationSuitable() const
   return false;
 }
 
-template <osl::Player P> 
+template <osl::Player P>
 void osl::checkmate::
 Dfpn::defense()
 {
@@ -2256,7 +2256,7 @@ Dfpn::defense()
       const HashKey& new_key = node.hashes[i] = node.hash_key.newHashWithMove(node.moves[i]);
       node.children[i] = table->probe<P>(new_key, node.nextWhiteStand(alt(P), node.moves[i]));
       if (node.children[i].proof_disproof.isCheckmateSuccess()) {
-	node.setCheckmateChildInDefense(i);	
+	node.setCheckmateChildInDefense(i);
       }
 #ifdef CHECKMATE_D2
       else if (node.children[i].proof_disproof == ProofDisproof(1,1)) {
@@ -2266,7 +2266,7 @@ Dfpn::defense()
 	node.children[i].proof_disproof
 	  = fixed_solver.hasEscapeByMove<P>(node.moves[i], 0, check_move, proof_pieces);
 	++node_count;
-	if (node.children[i].proof_disproof.isCheckmateSuccess()) {	  
+	if (node.children[i].proof_disproof.isCheckmateSuccess()) {
 	  node.children[i].best_move = check_move;
 	  node.children[i].setProofPieces(proof_pieces);
 	  node.children[i].node_count++;
@@ -2302,7 +2302,7 @@ Dfpn::defense()
 	      }
 	    }
 #endif
-	  }	  
+	  }
 #ifdef DISPROOF_AVERAGE
 	  ++frontier_count;
 	  sum_frontier_disproof += node.children[i].proof_disproof.disproof();
@@ -2321,11 +2321,11 @@ Dfpn::defense()
 	if (grand_parent_simulation && node.children[i].proof_disproof == ProofDisproof(1,1)) {
 	  const Node& gparent = tree->node[tree->depth-2];
 	  size_t gi=std::find(gparent.moves.begin(), gparent.moves.end(), node.moves[i]) - gparent.moves.begin();
-	  if (gi < gparent.moves.size() 
+	  if (gi < gparent.moves.size()
 	      && (
 #ifdef MEMORIZE_SOLVED_IN_BITSET
 		(gparent.record.solved & (1ull<<gi))
-		|| 
+		||
 #endif
 		gparent.children[gi].proof_disproof.isCheckmateSuccess())) {
 	    grandParentSimulation<P>(i, gparent, gi);
@@ -2360,9 +2360,9 @@ Dfpn::defense()
 #else
 	  node.children[i].proof_disproof.isCheckmateSuccess()
 #endif
-	    
+
 	    && node.moves[i].isDrop()) {
-	  blockingSimulation<P>(i, ProofOracle(node.hash_key.newHashWithMove(node.moves[i]), 
+	  blockingSimulation<P>(i, ProofOracle(node.hash_key.newHashWithMove(node.moves[i]),
 					       node.nextWhiteStand(alt(P), node.moves[i])));
 	}
       }
@@ -2408,7 +2408,7 @@ Dfpn::defense()
       if (i > 0 && min_disproof < ProofDisproof::DISPROOF_LIMIT
 	  && node.moves[i].fromTo() == node.moves[i-1].fromTo()
 	  && ! node.moves[i].isDrop()) {
-	// ignore a no-promote move until it becomes the last one, if there is the corresponding promote move  
+	// ignore a no-promote move until it becomes the last one, if there is the corresponding promote move
 	assert(node.moves[i].ptype() == node.moves[i-1].oldPtype());
 	continue;
       }
@@ -2422,7 +2422,7 @@ Dfpn::defense()
 	if (parallel_shared)
 	  parallel_shared->restartThreads(node.hash_key, tree->depth, record.working_threads);
 	return;
-      }      
+      }
 #ifdef OSL_DFPN_SMP
       if (proof && disproof) {
 	if (parallel_shared && node.children[i].working_threads) {
@@ -2442,7 +2442,7 @@ Dfpn::defense()
 	  max_children_depth = std::max(max_children_depth, node.children_path[i]->distance);
 #ifdef IGNORE_MONSTER_CHILD
 	    if (node.children_path[i]->distance <= node.path_record->distance
-		&& (! record.need_full_width || min_disproof < ProofDisproof::DISPROOF_LIMIT) // todo: this condition is not accurate 
+		&& (! record.need_full_width || min_disproof < ProofDisproof::DISPROOF_LIMIT) // todo: this condition is not accurate
 		&& node.children[i].proof_disproof.proof() >= node.threshold.proof()
 		&& node.threshold.proof() > IgnoreUpwardProofThreshold) {
 	      false_branch_candidate = false;
@@ -2516,7 +2516,7 @@ Dfpn::defense()
       sum_proof = max_proof;
 #endif
     sum_proof += max_drop_proof + max_proof_dag;
-    if (SacrificeBlockCount && max_drop_proof) 
+    if (SacrificeBlockCount && max_drop_proof)
       sum_proof -= SacrificeBlockCount;
     if (upward_count) {
       if (sum_proof == 0)
@@ -2613,7 +2613,7 @@ Dfpn::defense()
 	table->leaveWorking(node.hash_key, thread_id);
 	return;
       }
-    } 
+    }
 
     node.children[next_i] = next.record;
     node.children_path[next_i] = next.path_record;
@@ -2628,7 +2628,7 @@ Dfpn::defense()
       if (parallel_shared && record.proof_disproof.isFinal())
 	parallel_shared->restartThreads(node.hash_key, tree->depth, record.working_threads);
       return;
-    }      
+    }
     if (next.record.proof_disproof.isCheckmateSuccess())
       node.setCheckmateChildInDefense(next_i);
     if (node_count >= node_count_limit) {
@@ -2648,7 +2648,7 @@ Dfpn::defense()
 
 #if (!defined MINIMAL) || (defined DFPNSTATONE)
 void osl::checkmate::
-Dfpn::analyze(const PathEncoding& path_src, 
+Dfpn::analyze(const PathEncoding& path_src,
 	      const NumEffectState& src, const std::vector<Move>& moves) const
 {
   NumEffectState state(src);
@@ -2680,7 +2680,7 @@ Dfpn::analyze(const PathEncoding& path_src,
 	generateCheck<BLACK>(state, moves, has_pawn_checkmate);
       else
 	generateCheck<WHITE>(state, moves, has_pawn_checkmate);
-    }    
+    }
     else {
       const Square grand_parent_delay_last_to
 	= (record.last_to != state.kingSquare(state.turn())) ? record.last_to : Square();
@@ -2692,7 +2692,7 @@ Dfpn::analyze(const PathEncoding& path_src,
     for (size_t i=0; i<moves.size(); ++i) {
       const Move m = moves[i];
       std::cerr << "    " << m;
-      DfpnRecord child = table->probe(key.newMakeMove(m), 
+      DfpnRecord child = table->probe(key.newMakeMove(m),
 				      PieceStand(WHITE, state).nextStand(WHITE, m));
       std::cerr << ' ' << child.proof_disproof << ' ' << child.node_count;
       const DfpnPathRecord *child_path_record = path_table->probe(key.newMakeMove(m));
@@ -2720,7 +2720,7 @@ struct osl::checkmate::Dfpn::CallProofOracleAttack
   CallProofOracleAttack(Dfpn *s, const ProofOracle& o, int pl) : search(s), oracle(o), proof_limit(pl)
   {
   }
-  void operator()(Square) const 
+  void operator()(Square) const
   {
     search->proofOracleAttack<P,UseTable>(oracle, proof_limit);
   }
@@ -2735,13 +2735,13 @@ struct osl::checkmate::Dfpn::CallProofOracleDefense
   CallProofOracleDefense(Dfpn *s, const ProofOracle& o, int pl) : search(s), oracle(o), proof_limit(pl)
   {
   }
-  void operator()(Square) const 
+  void operator()(Square) const
   {
     search->proofOracleDefense<P,UseTable>(oracle, proof_limit);
   }
 };
 
-template <osl::Player P, bool UseTable> 
+template <osl::Player P, bool UseTable>
 void osl::checkmate::
 Dfpn::proofOracleAttack(const ProofOracle& key, int proof_limit)
 {
@@ -2819,7 +2819,7 @@ Dfpn::proofOracleAttack(const ProofOracle& key, int proof_limit)
   const Move check_move = OracleAdjust::attack(tree->state, oracle.best_move);
   if (! check_move.isNormal() || ! key.traceable(P, check_move))
     return;
-  
+
   node.allocate(1);
   node.moves.clear();
   node.moves.push_back(check_move);
@@ -2849,7 +2849,7 @@ Dfpn::proofOracleAttack(const ProofOracle& key, int proof_limit)
     if (next.record.proof_disproof == ProofDisproof::NoEscape()
 	&& next.moved.isDrop() && next.moved.ptype() == PAWN)
       node.children[0].proof_disproof = ProofDisproof::PawnCheckmate();
-  }  
+  }
   if (node.children[0].proof_disproof.isCheckmateSuccess()) {
     node.setCheckmateAttack(P,0);
     record.node_count += node_count - node_count_org;
@@ -2867,7 +2867,7 @@ Dfpn::proofOracleAttack(const ProofOracle& key, int proof_limit)
   }
 }
 
-template <osl::Player P, bool UseTable> 
+template <osl::Player P, bool UseTable>
 void osl::checkmate::
 Dfpn::proofOracleDefense(const ProofOracle& key, int proof_limit)
 {
@@ -2927,8 +2927,8 @@ Dfpn::proofOracleDefense(const ProofOracle& key, int proof_limit)
 	continue;
 #endif
       const HashKey& new_key = node.hashes[i] = node.hash_key.newHashWithMove(node.moves[i]);
-      node.children[i] = UseTable 
-	? table->probe<P>(new_key, node.nextWhiteStand(alt(P), node.moves[i])) 
+      node.children[i] = UseTable
+	? table->probe<P>(new_key, node.nextWhiteStand(alt(P), node.moves[i]))
 	: DfpnRecord();
       if (node.children[i].proof_disproof.isCheckmateSuccess()) {
 	node.setCheckmateChildInDefense(i);
@@ -2940,7 +2940,7 @@ Dfpn::proofOracleDefense(const ProofOracle& key, int proof_limit)
 	Move check_move;
 	node.children[i].proof_disproof
 	  = fixed_solver.hasEscapeByMove<P>(node.moves[i], 0, check_move, proof_pieces);
-	if (node.children[i].proof_disproof.isCheckmateSuccess()) {	  
+	if (node.children[i].proof_disproof.isCheckmateSuccess()) {
 	  node.children[i].best_move = check_move;
 	  node.children[i].setProofPieces(proof_pieces);
 	  node.setCheckmateChildInDefense(i);
@@ -2957,7 +2957,7 @@ Dfpn::proofOracleDefense(const ProofOracle& key, int proof_limit)
 	if (UseTable)
 	  table->store(node.hash_key, record);
 	return;
-      }      
+      }
       node.children_path[i] = UseTable ? path_table->probe(new_key) : 0;
     }
   }
@@ -3041,7 +3041,7 @@ Dfpn::proofOracleDefense(const ProofOracle& key, int proof_limit)
   }
 }
 
-template <osl::Player P> 
+template <osl::Player P>
 void osl::checkmate::
 Dfpn::blockingSimulation(int oracle_i, const ProofOracle& oracle)
 {
@@ -3080,7 +3080,7 @@ Dfpn::blockingSimulation(int oracle_i, const ProofOracle& oracle)
     tree->depth -= 1;
 
     node.children[i] = next.record;
-    node.children_path[i] = next.path_record;    
+    node.children_path[i] = next.path_record;
 
 #ifdef DFPN_STAT
     oracle_success.add(next.record.proof_disproof.isCheckmateSuccess());
@@ -3091,7 +3091,7 @@ Dfpn::blockingSimulation(int oracle_i, const ProofOracle& oracle)
   }
 }
 
-template <osl::Player P> 
+template <osl::Player P>
 void osl::checkmate::
 Dfpn::grandParentSimulation(int cur_i, const Node& gparent, int gp_i)
 {
@@ -3106,7 +3106,7 @@ Dfpn::grandParentSimulation(int cur_i, const Node& gparent, int gp_i)
 
   const Move move = gparent.moves[gp_i];
   assert(move == node.moves[cur_i]);
-  const HashKey& oracle_hash = (gparent.record.solved & (1ull << gp_i)) 
+  const HashKey& oracle_hash = (gparent.record.solved & (1ull << gp_i))
     ? gparent.hash_key.newHashWithMove(move)
     : gparent.hashes[gp_i];
   const ProofOracle oracle(oracle_hash, gparent.nextWhiteStand(alt(P), move));
@@ -3120,7 +3120,7 @@ Dfpn::grandParentSimulation(int cur_i, const Node& gparent, int gp_i)
   tree->depth -= 1;
 
   node.children[cur_i] = next.record;
-  node.children_path[cur_i] = next.path_record;    
+  node.children_path[cur_i] = next.path_record;
 #ifdef DFPN_STAT
   oracle_success.add(next.record.proof_disproof.isCheckmateSuccess());
 #endif

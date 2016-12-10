@@ -9,7 +9,7 @@ using namespace osl;
 using namespace osl::record;
 using namespace osl::book;
 
-typedef std::unordered_map<HashKey, WeightedBook::WMoveContainer, std::hash<HashKey>> state_map;
+typedef std::unordered_map<HashKey, WeightedBook::WMoveContainer, stl::hash<HashKey>> state_map;
 void show(const std::string& filename,
 	  const state_map& states, const SimpleState& state)
 {
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     for (Move move: record_moves) {
       state.makeMove(move);
       show(filename, states, state);
-    }      
+    }
   }
 
   return 0;

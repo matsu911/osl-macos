@@ -12,7 +12,7 @@ namespace osl
 {
   namespace hash
   {
-    struct BoardKey96 : public std::pair<uint64_t,uint32_t> 
+    struct BoardKey96 : public std::pair<uint64_t,uint32_t>
     {
       BoardKey96() {}
       BoardKey96(const std::pair<uint64_t,uint32_t>& src)
@@ -37,7 +37,7 @@ namespace osl
     {
       friend class HashGenTable;
     public:
-      HashKey128() 
+      HashKey128()
       {
 	board64 = board32 = piece_stand = 0;
       }
@@ -51,7 +51,7 @@ namespace osl
       {
       }
       const BoardKey96 boardKey() const {
-	return std::make_pair(board64, board32); 
+	return std::make_pair(board64, board32);
       }
       uint64_t boardKey64() const { return board64; }
       uint64_t signature() const { return board32; }
@@ -92,8 +92,8 @@ namespace osl
       }
       void add(Move move) { board64 += move.intValue(); }
       void changeTurn() { board64 ^= static_cast<uint64_t>(1); }
-      void setPlayer(Player p) 
-      { 
+      void setPlayer(Player p)
+      {
 	board64 &= ~static_cast<uint64_t>(1);
 	board64 |= playerToIndex(p);
       }
@@ -104,10 +104,10 @@ namespace osl
       }
       Player turn() const { return isPlayerOfTurn(BLACK) ? BLACK : WHITE; }
       /**
-       * 乱数で初期化.  
+       * 乱数で初期化.
        * pieceStandには触らない
        */
-      void setRandom();    
+      void setRandom();
       size_t size() const { return 2; }
       uint64_t operator[](size_t i) const { return i ? board64 : board32; }
       struct StandHash
@@ -115,7 +115,7 @@ namespace osl
 	CArray<uint64_t, 19*3*3> HashMajorPawn;
 	CArray<uint64_t, 5*5*5*5> HashPiece;
 	StandHash();
-	uint64_t toUint64(PieceStand stand) const 
+	uint64_t toUint64(PieceStand stand) const
 	{
 	  int major_pawn = stand.get(PAWN)*9
 	    + stand.get(ROOK)*3 + stand.get(BISHOP);
@@ -135,7 +135,7 @@ namespace osl
       return !(l==r);
     }
     /**
-     * set等で使うためのみの不等号.  
+     * set等で使うためのみの不等号.
      * full orderであること以外に深い意味はない
      */
     inline bool operator<(const HashKey128& l, const HashKey128& r)
@@ -185,7 +185,7 @@ namespace osl
   using hash::BoardKey;
 } // namespace osl
 
-namespace std
+namespace stl
 {
   template <typename T> struct hash;
   template <>

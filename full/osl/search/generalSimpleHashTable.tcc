@@ -10,9 +10,9 @@
 #include <unordered_map>
 
 template <typename Record>
-struct osl::container::GeneralSimpleHashTable<Record>::Table 
+struct osl::container::GeneralSimpleHashTable<Record>::Table
 {
-  typedef std::unordered_map<HashKey, Record, std::hash<HashKey>> table_t;
+  typedef std::unordered_map<HashKey, Record, stl::hash<HashKey>> table_t;
   typedef typename table_t::const_iterator const_iterator;
 #ifdef OSL_SMP
   typedef osl::misc::LightMutex Mutex;
@@ -27,7 +27,7 @@ struct osl::container::GeneralSimpleHashTable<Record>::Table
   const size_t capacity;
   int num_cache_hit, num_record_after_full;
 
-  Table(size_t c) 
+  Table(size_t c)
     : capacity(c), num_cache_hit(0), num_record_after_full(0)
   {
   }
@@ -74,7 +74,7 @@ public:
 #endif
     return findInLock(key,i);
   }
-    
+
   Record *allocate(const HashKey& key)
   {
     const int i=keyToIndex(key);
@@ -102,7 +102,7 @@ public:
       ++num_record_after_full;
       throw TableFull();
 #else
-      if (num_record_after_full++ == 0) 
+      if (num_record_after_full++ == 0)
 	throw TableFull();
 #endif
     }
@@ -110,14 +110,14 @@ public:
   }
 };
 
-  
+
 template <typename Record>
 osl::container::GeneralSimpleHashTable<Record>::
-GeneralSimpleHashTable(size_t capacity) 
+GeneralSimpleHashTable(size_t capacity)
   : table(new Table(capacity))
 {
 }
-  
+
 template <typename Record>
 osl::container::GeneralSimpleHashTable<Record>::
 ~GeneralSimpleHashTable() {
@@ -131,7 +131,7 @@ clear()
 }
 
 template <typename Record>
-Record * 
+Record *
 osl::container::GeneralSimpleHashTable<Record>::
 allocate(const HashKey& key)
 {
@@ -139,7 +139,7 @@ allocate(const HashKey& key)
 }
 
 template <typename Record>
-Record * 
+Record *
 osl::container::GeneralSimpleHashTable<Record>::
 find(const HashKey& key)
 {
@@ -147,7 +147,7 @@ find(const HashKey& key)
 }
 
 template <typename Record>
-const Record * 
+const Record *
 osl::container::GeneralSimpleHashTable<Record>::
 find(const HashKey& key) const
 {

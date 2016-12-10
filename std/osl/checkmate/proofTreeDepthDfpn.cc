@@ -14,17 +14,17 @@
 struct osl::checkmate::ProofTreeDepthDfpn::Table
 {
   boost::scoped_array<NumEffectState> state;
-  typedef std::unordered_map<HashKey, std::pair<int, Move>, std::hash<HashKey>> map_t;
+  typedef std::unordered_map<HashKey, std::pair<int, Move>, stl::hash<HashKey>> map_t;
   typedef std::pair<const HashKey, std::pair<int, Move>> entry_t;
   typedef std::forward_list<const entry_t*> list_t;
-  typedef std::unordered_map<BoardKey, list_t, std::hash<BoardKey>> index_t;
+  typedef std::unordered_map<BoardKey, list_t, stl::hash<BoardKey>> index_t;
   map_t depth_table;
   index_t depth_index;
   const DfpnTable& table;
   Table(const DfpnTable& t) : state(new NumEffectState[t.maxDepth()]), table(t)
   {
   }
-  void store(const HashKey& key, int depth, Move best_move=Move()) 
+  void store(const HashKey& key, int depth, Move best_move=Move())
   {
     depth_table[key] = std::make_pair(depth, best_move);
     const entry_t& e = *depth_table.find(key);
@@ -114,7 +114,7 @@ ProofTreeDepthDfpn::retrievePV
 int osl::checkmate::
 ProofTreeDepthDfpn::orNode(const HashKey& key, Move& best_move, int height) const
 {
-  assert(key == HashKey(table->state[height]));  
+  assert(key == HashKey(table->state[height]));
   best_move = Move();
   if (height >= table->maxDepth())
     return -1;
@@ -140,7 +140,7 @@ ProofTreeDepthDfpn::orNode(const HashKey& key, Move& best_move, int height) cons
   }
   {
     int recorded;
-    if (table->find(key, recorded, best_move)) 
+    if (table->find(key, recorded, best_move))
       return recorded;
   }
   table->store(key, -1, Move());
@@ -152,7 +152,7 @@ ProofTreeDepthDfpn::orNode(const HashKey& key, Move& best_move, int height) cons
   }
 
   const HashKey new_key = key.newHashWithMove(record.best_move);
-  const PieceStand next_white_stand = (table->state[height].turn() == WHITE) 
+  const PieceStand next_white_stand = (table->state[height].turn() == WHITE)
     ? white_stand.nextStand(WHITE, record.best_move) : white_stand;
   DfpnRecord new_record = table->table.probe(new_key, next_white_stand);
   if (! new_record.proof_disproof.isCheckmateSuccess())
@@ -180,7 +180,7 @@ ProofTreeDepthDfpn::andNode(const HashKey& key, Move& best_move, int height) con
     return -1;
   {
     int recorded;
-    if (table->find(key, recorded, best_move)) 
+    if (table->find(key, recorded, best_move))
       return recorded;
   }
   table->store(key, -1, Move());
@@ -209,7 +209,7 @@ ProofTreeDepthDfpn::andNode(const HashKey& key, Move& best_move, int height) con
       best_move = (*moves)[i];
     }
   }
-  
+
   table->store(key, result, best_move);
   return result;
 }

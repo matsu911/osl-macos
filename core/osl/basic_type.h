@@ -9,7 +9,7 @@ namespace osl{
     BLACK=0,
     WHITE= -1
   };
-  
+
   constexpr Player alt(Player player){
     return static_cast<Player>(-1-static_cast<int>(player));
   }
@@ -31,19 +31,19 @@ namespace osl{
 
   // These codes are intentionally DECLARED and NOT IMPLEMENTED.
   // you will get link error here if you write code such as "value += v * piece.owner() == BLACK ? 1.0 : -1.0;"
-  int operator+(Player, int);	int operator+(int, Player);	
-  int operator-(Player, int);	int operator-(int, Player);	
-  int operator*(Player, int);	int operator*(int, Player);	
-  int operator/(Player, int);	int operator/(int, Player);	
-  
+  int operator+(Player, int);	int operator+(int, Player);
+  int operator-(Player, int);	int operator-(int, Player);
+  int operator*(Player, int);	int operator*(int, Player);
+  int operator/(Player, int);	int operator/(int, Player);
+
   /**
    * cast等で作られたplayerが正しいかどうかを返す
    */
   bool isValid(Player player);
-#if 0    
+#if 0
   template<Player P>
   struct PlayerTraits;
-  
+
   template<>
   struct PlayerTraits<BLACK>{
     static const int offsetMul=1;
@@ -51,7 +51,7 @@ namespace osl{
     static const int mask=0;
     static const Player opponent=WHITE;
   };
-  
+
   template<>
   struct PlayerTraits<WHITE>{
     static const int offsetMul=-1;
@@ -66,13 +66,13 @@ namespace osl{
   {
 // Int2Type by LOKI
     template<int v>
-    struct Int2Type{ enum { value=v }; }; 
+    struct Int2Type{ enum { value=v }; };
 
     template<typename T>
-    struct Type2Type{}; 
+    struct Type2Type{};
 
     template<Player P>
-    struct Player2Type{ enum { value=P }; }; 
+    struct Player2Type{ enum { value=P }; };
 
     struct EmptyType{};
   } // namespace misc
@@ -105,10 +105,10 @@ namespace osl{
     PTYPE_MAX=15,
   };
   const int PTYPE_SIZE=PTYPE_MAX-PTYPE_MIN+1;
-  
+
   std::istream& operator>>(std::istream& is, Ptype& ptype);
   std::ostream& operator<<(std::ostream& os,const Ptype ptype);
-  
+
   /**
    * int等からcastして作ったptypeが，正しい範囲に入っているかどうかのチェック
    */
@@ -130,14 +130,14 @@ namespace osl{
     assert(isValid(ptype));
     return static_cast<int>(ptype)>PROOK;
   }
-  
+
   /**
    * ptypeがpromote後の型かどうかのチェック
    */
   inline bool isPromoted(Ptype ptype)
   {
     assert(isPiece(ptype));
-    return static_cast<int>(ptype)<KING; 
+    return static_cast<int>(ptype)<KING;
   }
 
   /**
@@ -147,17 +147,17 @@ namespace osl{
   inline bool canPromote(Ptype ptype)
   {
     assert(isPiece(ptype));
-    return static_cast<int>(ptype)>GOLD; 
+    return static_cast<int>(ptype)>GOLD;
   }
-  
-  /** 
+
+  /**
    * ptypeがpromote後の型の時に，promote前の型を返す．
    * promoteしていない型の時はそのまま返す
    */
   inline Ptype unpromote(Ptype ptype)
   {
     assert(isPiece(ptype));
-    Ptype ret=static_cast<Ptype>(static_cast<int>(ptype)|8); 
+    Ptype ret=static_cast<Ptype>(static_cast<int>(ptype)|8);
     assert(isPiece(ret));
     return ret;
   }
@@ -165,15 +165,15 @@ namespace osl{
   {
     return (! isPiece(ptype)) ? ptype : unpromote(ptype);
   }
-  
-  /** 
+
+  /**
    * promote可能なptypeに対して，promote後の型を返す
    * promote不可のptypeを与えてはいけない．
    */
   inline Ptype promote(Ptype ptype)
   {
     assert(canPromote(ptype));
-    Ptype ret=static_cast<Ptype>(static_cast<int>(ptype)-8); 
+    Ptype ret=static_cast<Ptype>(static_cast<int>(ptype)-8);
     assert(isPiece(ret));
     return ret;
   }
@@ -191,16 +191,16 @@ namespace osl{
   {
     return (static_cast<int>(ptype)|8)>=14;
   }
-  
+
   /**
-   * Player + Ptype [-15, 15] 
+   * Player + Ptype [-15, 15]
    * PtypeO の O は Owner の O
    */
   enum PtypeO {
     PTYPEO_MIN= PTYPE_EMPTY-16,
     PTYPEO_MAX= 15,
   };
-  
+
 #define NEW_PTYPEO(player,ptype) static_cast<PtypeO>(static_cast<int>(ptype)-(16&static_cast<int>(player)))
   inline unsigned int ptypeOIndex(PtypeO ptypeo)
   {
@@ -212,38 +212,38 @@ namespace osl{
   {
     return static_cast<PtypeO>(static_cast<int>(ptype)-(16&static_cast<int>(player)));
   }
-  
-  
+
+
   inline Ptype getPtype(PtypeO ptypeO)
   {
     return static_cast<Ptype>(static_cast<int>(ptypeO)& 15);
   }
-  
+
   /** pieceをpromoteさせる. promote不可のptypeを与えてはいけない．*/
   inline PtypeO promote(PtypeO ptypeO)
   {
     assert(canPromote(getPtype(ptypeO)));
-    PtypeO ret=static_cast<PtypeO>(static_cast<int>(ptypeO)-8); 
+    PtypeO ret=static_cast<PtypeO>(static_cast<int>(ptypeO)-8);
     assert(isPiece(getPtype(ret)));
     return ret;
   }
-  
+
   /** pieceを引数次第でpromoteさせる */
   inline PtypeO promoteWithMask(PtypeO ptypeO,int promoteMask)
   {
     assert(promoteMask==0 || promoteMask==0x800000);
-    PtypeO ret=static_cast<PtypeO>(static_cast<int>(ptypeO)-(promoteMask>>20)); 
+    PtypeO ret=static_cast<PtypeO>(static_cast<int>(ptypeO)-(promoteMask>>20));
     return ret;
   }
-  
+
   /** pieceをunpromoteさせる.  promoteしていないptypeを与えてもよい */
   inline PtypeO unpromote(PtypeO ptypeO)
   {
-    return static_cast<PtypeO>(static_cast<int>(ptypeO)|8); 
+    return static_cast<PtypeO>(static_cast<int>(ptypeO)|8);
   }
 
   bool isValidPtypeO(int ptypeO);
-  
+
   /**
    * EMPTY, EDGEではない
    */
@@ -258,7 +258,7 @@ namespace osl{
     assert(isPiece(ptypeO));
     return static_cast<Player>(static_cast<int>(ptypeO)>>31);
   }
-  
+
 
   /** unpromoteすると共に，ownerを反転する． */
   inline PtypeO captured(PtypeO ptypeO)
@@ -266,7 +266,7 @@ namespace osl{
     assert(isPiece(ptypeO));
     return static_cast<PtypeO>((static_cast<int>(ptypeO)|8)^(~15));
   }
-  
+
   /** owner を反転する */
   inline PtypeO alt(PtypeO ptypeO)
   {
@@ -274,9 +274,9 @@ namespace osl{
     return static_cast<PtypeO>(static_cast<int>(ptypeO)^(~15));
   }
 
-  /** 
-   * Pieceの時にはowner を反転する 
-   * 
+  /**
+   * Pieceの時にはowner を反転する
+   *
    */
   inline PtypeO altIfPiece(PtypeO ptypeO)
   {
@@ -302,9 +302,9 @@ namespace osl{
 
   const PtypeO PTYPEO_EMPTY=newPtypeO(BLACK,PTYPE_EMPTY);
   const PtypeO PTYPEO_EDGE __attribute__((unused)) = newPtypeO(WHITE,PTYPE_EDGE);
-  
+
   std::ostream& operator<<(std::ostream& os,const PtypeO ptypeO);
-  
+
   const int PTYPEO_SIZE=PTYPEO_MAX-PTYPEO_MIN+1;
 
   enum Direction{
@@ -338,7 +338,7 @@ namespace osl{
     DIRECTION_INVALID_VALUE=18,
     DIRECTION_SIZE=18
   };
-  
+
   constexpr bool isShort(Direction d){
     return d<=SHORT_DIRECTION_MAX;
   }
@@ -376,12 +376,12 @@ namespace osl{
   }
 
   bool isValid(Direction d);
-  
+
   constexpr Direction longToShort(Direction d){
     //assert(isLong(d))
     return static_cast<Direction>(static_cast<int>(d)-LONG_UL);
   }
-  
+
   /**
    * 引数に longDirを与えてはいけない
    */
@@ -393,13 +393,13 @@ namespace osl{
   constexpr int dirToMask(Direction dir){
     return (1<<static_cast<int>(dir));
   }
-  
+
   std::ostream& operator<<(std::ostream& os,const Direction d);
 
   /**
    * 座標.
    *        盤面のインデックス
-   * X, Yも1-9の範囲で表す 
+   * X, Yも1-9の範囲で表す
    * Xは右から数える．Yは上から数える
    * なお駒台は0
    * <pre>
@@ -418,7 +418,7 @@ namespace osl{
    * (AC) ...........................(0C)
    * (AD) ...........................(0D)
    * (AE) ...........................(0E)
-   * (AF) ...........................(0F) 
+   * (AF) ...........................(0F)
    * </pre>
    */
   class Square;
@@ -479,7 +479,7 @@ namespace osl{
       offset -= other.offset;
       return *this;
     }
-    const Offset operator+(Offset other) const 
+    const Offset operator+(Offset other) const
     {
       Offset result(*this);
       return result += other;
@@ -521,7 +521,7 @@ namespace osl{
   {
     return l.intValue() < r.intValue();
   }
-  
+
 
   std::ostream& operator<<(std::ostream&, Offset);
 }
@@ -553,8 +553,8 @@ namespace osl
     /**
      * assertなしに作る
      */
-    static const Square makeNoCheck(int x, int y) { 
-      return Square((x*Offset::BOARD_HEIGHT)+y+1); 
+    static const Square makeNoCheck(int x, int y) {
+      return Square((x*Offset::BOARD_HEIGHT)+y+1);
     }
     static const Square nth(unsigned int i) { return Square(i+MIN); }
     /**
@@ -580,7 +580,7 @@ namespace osl
      * 1<=x() && x()<=9 && 1<=y() && y()<=9
      * Squareの内部表現に依存する．
      */
-    bool isOnBoard() const { 
+    bool isOnBoard() const {
       return (0xffffff88&(square-0x12)&
 	      ((unsigned int)((square&0x77)^0x12)+0xffffff77))==0;
     }
@@ -588,7 +588,7 @@ namespace osl
      * onBoardから8近傍のオフセットを足した点がedgeかどうかの判定
      * そこそこ速くなった．
      */
-    bool isEdge() const { 
+    bool isEdge() const {
       assert(!isPieceStand() && 0<=x() && x()<=10 && 0<=y() && y()<=10);
       return (0x88&(square-0x12)&((square&0x11)+0xf7))!=0;
     }
@@ -601,7 +601,7 @@ namespace osl
 	: makeDirect(Square(9,9).uintValue()+Square(1,1).uintValue()-uintValue());
     }
 
-    /** 
+    /**
      * 後手の場合は盤面を引っくり返す.
      * PIECE_STANDの場合は扱えない．
      */
@@ -610,16 +610,16 @@ namespace osl
       return squareForBlack(P);
     }
 
-    const Square rotate180() const 
+    const Square rotate180() const
     {
       return squareForBlack<WHITE>();
     }
-    const Square rotate180EdgeOK() const 
+    const Square rotate180EdgeOK() const
     {
       Square ret=makeDirect(Square(9,9).uintValue()+Square(1,1).uintValue()-uintValue());
       return ret;
     }
-    const Square rotate180Safe() const 
+    const Square rotate180Safe() const
     {
       if (isPieceStand())
 	return *this;
@@ -634,12 +634,12 @@ namespace osl
 
     static const Square onBoardMax(){ return Square(9,9); }
     static const Square onBoardMin(){ return Square(1,1); }
-  
+
     /**
      * squareがONBOARD_MINとONBOARD_MAXの間にある
      */
     bool isOnBoardRegion() const {
-      return static_cast<unsigned int>(index()-onBoardMin().index()) 
+      return static_cast<unsigned int>(index()-onBoardMin().index())
 	<= static_cast<unsigned int>(onBoardMax().index()-onBoardMin().index());
     }
 
@@ -652,18 +652,18 @@ namespace osl
     static int reverseY(int y) { return 10-y; }
   public:
     template <Player P>
-    static bool canPromoteY(int y) { 
+    static bool canPromoteY(int y) {
       return P == BLACK ? y <= 3 : y >= 7;
     }
     template <Player P>
     bool canPromote() const{
       return canPromote(P);
     }
-    bool canPromote(Player player) const 
+    bool canPromote(Player player) const
     {
-      if (player==BLACK) 
+      if (player==BLACK)
 	return (uintValue()&0xf)<=4;
-      else 
+      else
 	return (uintValue()&0x8)!=0;
     }
     /**
@@ -779,7 +779,7 @@ namespace osl
   const int EDGE_NUM=0x40;
   /**
    * 駒.
-   * 駒はptypeo(-15 - 15), 番号(0-39), ポジション(0-0xff)からなる 
+   * 駒はptypeo(-15 - 15), 番号(0-39), ポジション(0-0xff)からなる
    * 上位16 bitでptypeo, 8bitで番号, 8bitでポジションとする．
    * 空きマスは 黒，PTYPE_EMPTY, 番号 0x80, ポジション 0
    * 盤外は     白，PTYPE_EDGE,  番号 0x40, ポジション 0
@@ -799,7 +799,7 @@ namespace osl
     static const int BitOffsetPtype=16;
     static const int BitOffsetPromote=BitOffsetPtype+3;
     static const int BitOffsetMovePromote=BitOffsetPromote+4;
-    
+
     Piece(Player owner, Ptype ptype, int num, Square square)
       : piece((static_cast<int>(owner)<<20)
 	      +(static_cast<int>(ptype)<<BitOffsetPtype)
@@ -846,7 +846,7 @@ namespace osl
      * piece がプレイヤーPの持ち物でかつボード上にある駒の場合は true.
      * 敵の駒だったり，駒台の駒だったり，Piece::EMPTY(), PIECE_EDGEの場合は false
      * @param P(template) - プレイヤー
-     * @param piece - 
+     * @param piece -
      */
     template<Player P>
     bool isOnBoardByOwner() const { return isOnBoardByOwner(P); }
@@ -916,7 +916,7 @@ namespace osl
     static bool isEmptyNum(int num) {
       return (num&0x80)!=0;
     }
-    bool isEdge() const { 
+    bool isEdge() const {
       return (piece&0x4000)!=0;
     }
     static bool isEdgeNum(int num){
@@ -1010,7 +1010,7 @@ namespace osl
 #  include <cassert>
 #  define move_assert(x) assert(x)
 #else
-#  define move_assert(x) 
+#  define move_assert(x)
 #endif
 // 2009/12/10 以前のfromが下位にあるパターンと
 // operator< を同じにしたい時に定義する．
@@ -1028,25 +1028,25 @@ namespace osl
    * - invalid: isInvalid 以外の演算はできない
    * - declare_win: isInvalid 以外の演算はできない
    * - pass: from, to, ptype, oldPtype はとれる．player()はとれない．
-   * 
-   * Pieceとpromotepをそろえる  -> 変える． 
-   * 下位から 
+   *
+   * Pieceとpromotepをそろえる  -> 変える．
+   * 下位から
    * 2009/12/10から
-   * - to       : 8 bit 
-   * - from     : 8 bit 
-   * - capture ptype    : 4 bit 
-   * - dummy    : 3 bit 
-   * - promote? : 1 bit  
+   * - to       : 8 bit
+   * - from     : 8 bit
+   * - capture ptype    : 4 bit
+   * - dummy    : 3 bit
+   * - promote? : 1 bit
    * - ptype    : 4 bit - promote moveの場合はpromote後のもの
-   * - owner    : signed 
+   * - owner    : signed
    * 2009/12/10以前
-   * - from     : 8 bit 
-   * - to       : 8 bit 
-   * - dummy    : 3 bit 
-   * - promote? : 1 bit  
-   * - capture ptype    : 4 bit 
+   * - from     : 8 bit
+   * - to       : 8 bit
+   * - dummy    : 3 bit
+   * - promote? : 1 bit
+   * - capture ptype    : 4 bit
    * - ptype    : 4 bit - promote moveの場合はpromote後のもの
-   * - owner    : signed 
+   * - owner    : signed
    */
   class Move
   {
@@ -1057,15 +1057,15 @@ namespace osl
     explicit Move(int value) : move(value)
     {
     }
-    enum { 
+    enum {
       INVALID_VALUE = (1<<8), DECLARE_WIN = (2<<8),
-      BLACK_PASS = 0, WHITE_PASS = (-1)<<28, 
+      BLACK_PASS = 0, WHITE_PASS = (-1)<<28,
     };
   public:
     int intValue() const { return move; }
     /** 駒を取らない手を [0, 16305] にmap */
     unsigned int hash() const;
-    /** 一局面辺りの合法手の最大値 
+    /** 一局面辺りの合法手の最大値
      * 重複して手を生成することがある場合は，600では不足かもしれない
      */
     static const unsigned int MaxUniqMoves=600;
@@ -1085,9 +1085,9 @@ namespace osl
     {
     }
     /** INVALID でも PASS でもない. isValid()かどうかは分からない．*/
-    bool isNormal() const { 
+    bool isNormal() const {
       // PASS や INVALID は to() が 00
-      return move & 0x00ff; 
+      return move & 0x00ff;
     }
     bool isPass() const { return (move & 0xffff) == 0; }
     static const Move makeDirect(int value) { return Move(value); }
@@ -1122,7 +1122,7 @@ namespace osl
     static const Move fromMove16(Move16, const SimpleState&);
     Move16 toMove16() const;
 
-    const Square from() const 
+    const Square from() const
     {
       assert(! isInvalid());
       move_assert(isValidOrPass());
@@ -1151,7 +1151,7 @@ namespace osl
     bool isPawnDrop() const {
       return isDrop() && ptype() == PAWN;
     }
-      
+
     Ptype ptype() const {
       assert(! isInvalid());
       move_assert(isValidOrPass());
@@ -1171,11 +1171,11 @@ namespace osl
       return result;
     }
     /** 移動前のPtype, i.e., 成る手だった場合成る前 */
-    Ptype oldPtype() const { 
+    Ptype oldPtype() const {
       assert(! isInvalid());
       move_assert(isValidOrPass());
       const PtypeO old_ptypeo = static_cast<PtypeO>((move>>24)+((move >> (BitOffsetPromote-3))&8));
-      return getPtype(old_ptypeo); 
+      return getPtype(old_ptypeo);
     }
     Ptype capturePtype() const {
       assert(isNormal());
@@ -1199,8 +1199,8 @@ namespace osl
     }
     bool isValid() const;
     /** state に apply 可能でない場合にtrue */
-    bool isInvalid() const { 
-      return static_cast<unsigned int>(move-1) < DECLARE_WIN; 
+    bool isInvalid() const {
+      return static_cast<unsigned int>(move-1) < DECLARE_WIN;
     }
     bool isValidOrPass() const { return isPass() || isValid(); }
 
@@ -1269,7 +1269,7 @@ namespace osl
       return Move::makeDirect(intValue()+sq.uintValue());
     }
     /**
-     * 作ってあったPTYPE_EMPTYのひな形のPTYPEをsetする 
+     * 作ってあったPTYPE_EMPTYのひな形のPTYPEをsetする
      */
     inline Move newAddPtype(Ptype newPtype) const{
       assert(ptype()==PTYPE_EMPTY);
@@ -1279,9 +1279,9 @@ namespace osl
     template<Player P>
     static bool ignoreUnpromote(Ptype ptype,Square from,Square to){
       switch(ptype){
-      case PAWN: 
+      case PAWN:
 	return to.canPromote<P>();
-      case BISHOP: case ROOK: 
+      case BISHOP: case ROOK:
 	return to.canPromote<P>() || from.canPromote<P>();
       case LANCE:
 	return (P==BLACK ? to.y()==2 : to.y()==8);
@@ -1289,7 +1289,7 @@ namespace osl
       }
     }
     /**
-     * 合法手ではあるが，打歩詰め絡み以外では有利にはならない手.  
+     * 合法手ではあるが，打歩詰め絡み以外では有利にはならない手.
      * TODO 遅い
      */
     template<Player P>
@@ -1310,11 +1310,11 @@ namespace osl
       assert(player()==P);
       if(!isPromotion()) return false;
       switch(ptype()){
-      case PPAWN: 
+      case PPAWN:
 	return (P==BLACK ? to().y()!=1 : to().y()!=9);
       case PLANCE:
 	return (P==BLACK ? to().y()==2 : to().y()==8);
-      case PBISHOP: case PROOK: 
+      case PBISHOP: case PROOK:
 	return true;
       default: return false;
       }
@@ -1349,7 +1349,7 @@ namespace osl
   std::ostream& operator<<(std::ostream& os, Move move);
 }
 
-namespace std
+namespace stl
 {
   template <typename T> struct hash;
   template <> struct hash<osl::Move>

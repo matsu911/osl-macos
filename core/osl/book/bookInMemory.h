@@ -14,7 +14,7 @@ namespace osl
     class BookInMemory
     {
       typedef CArray<Move,8> moves_t;
-      typedef std::unordered_map<HashKey,moves_t,std::hash<HashKey>> table_t;
+      typedef std::unordered_map<HashKey,moves_t,stl::hash<HashKey>> table_t;
       table_t table;
     public:
       ~BookInMemory();

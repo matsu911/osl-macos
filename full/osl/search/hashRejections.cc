@@ -7,9 +7,9 @@ struct osl::search::HashRejections::Table
 {
   struct Entry
   {
-    PieceStand black_stand;    
+    PieceStand black_stand;
   };
-  typedef std::unordered_map<BoardKey, Entry, std::hash<BoardKey>> table_t;
+  typedef std::unordered_map<BoardKey, Entry, stl::hash<BoardKey>> table_t;
   table_t table;
 };
 
@@ -20,7 +20,7 @@ struct osl::search::HashRejections::RootTable
     PieceStand black_stand;
     HashKey parent;
   };
-  typedef std::unordered_map<BoardKey, Entry, std::hash<BoardKey>> table_t;
+  typedef std::unordered_map<BoardKey, Entry, stl::hash<BoardKey>> table_t;
   table_t table;
 };
 
@@ -114,12 +114,12 @@ HashRejections::rejectionProbe(const HashKey& cur, const HashKey& parent) const
   {
     RootTable::table_t::const_iterator p = root_table->table.find(cur.boardKey());
     if (p != root_table->table.end() && p->second.parent != parent) {
-      if (cur.turn() == BLACK) 
+      if (cur.turn() == BLACK)
       {
 	if (cur.blackStand().isSuperiorOrEqualTo(p->second.black_stand))
 	  return true;
       }
-      else 
+      else
       {
 	if (p->second.black_stand.isSuperiorOrEqualTo(cur.blackStand()))
 	  return true;
@@ -129,12 +129,12 @@ HashRejections::rejectionProbe(const HashKey& cur, const HashKey& parent) const
   {
     Table::table_t::const_iterator p = table->table.find(cur.boardKey());
     if (p != table->table.end()) {
-      if (cur.turn() == BLACK) 
+      if (cur.turn() == BLACK)
       {
 	if (cur.blackStand().isSuperiorOrEqualTo(p->second.black_stand))
 	  return true;
       }
-      else 
+      else
       {
 	if (p->second.black_stand.isSuperiorOrEqualTo(cur.blackStand()))
 	  return true;

@@ -25,16 +25,16 @@ double ratio;		   // use moves[n+1] when the weight[n+1] >= ratio*weight[n]
 
 size_t state_count = 0;
 
-void printUsage(std::ostream& out, 
+void printUsage(std::ostream& out,
                 char **argv,
                 const boost::program_options::options_description& command_line_options)
 {
   out << "Usage: " << argv[0] << " [options] <book-a.dat> <book-b.dat>\n"
-      << command_line_options 
+      << command_line_options
       << std::endl;
 }
 
-typedef std::unordered_map<osl::HashKey,int,std::hash<osl::HashKey>> table_t;
+typedef std::unordered_map<osl::HashKey,int,stl::hash<osl::HashKey>> table_t;
 void store(osl::book::WeightedBook& book, table_t& table, std::vector<int>& parents)
 {
   WMoveContainer moves = book.moves(book.startState());
@@ -62,7 +62,7 @@ void store(osl::book::WeightedBook& book, table_t& table, std::vector<int>& pare
 
     depth_found = std::max(depth_found, depth);
     WMoveContainer moves = book.moves(stateIndex);
-    
+
     // 自分（the_player）の手番では、良い手のみ指す
     // 相手はどんな手を指してくるか分からない
     std::sort(moves.begin(), moves.end(), osl::book::WMoveWeightMoveSort());
@@ -71,12 +71,12 @@ void store(osl::book::WeightedBook& book, table_t& table, std::vector<int>& pare
            (the_player == osl::WHITE && depth % 2 == 0)) )
     {
       int min = 1;
-      if (is_determinate) 
+      if (is_determinate)
       {
 	min = moves.at(0).weight;
-	if (depth <= non_determinate_depth) 
+	if (depth <= non_determinate_depth)
 	{
-	  for (int i=1; i<=std::min(is_determinate, (int)moves.size()-1); ++i) 
+	  for (int i=1; i<=std::min(is_determinate, (int)moves.size()-1); ++i)
 	  {
 	    const int weight = moves.at(i).weight;
 	    if ((double)weight < (double)moves.at(i-1).weight*ratio)
@@ -126,15 +126,15 @@ void store(osl::book::WeightedBook& book, table_t& table, std::vector<int>& pare
   // Show the result
   std::cout << std::endl;
   std::cout << boost::format("Player: %s\n") % the_player;
-  std::cout << 
-    boost::format("#leaves: %d, max_depth %d\n") 
-                  % leaves 
+  std::cout <<
+    boost::format("#leaves: %d, max_depth %d\n")
+                  % leaves
                   % depth_found;
 }
 
 void show_moves(const char *name, osl::book::WeightedBook& book, int node)
 {
-  WMoveContainer moves = book.moves(node);  
+  WMoveContainer moves = book.moves(node);
   std::sort(moves.begin(), moves.end(), osl::book::WMoveWeightMoveSort());
 
   if (! moves.empty() && moves[0].weight) {
@@ -171,9 +171,9 @@ osl::MoveVector make_history(osl::book::WeightedBook& book, const std::vector<in
   std::reverse(history.begin(), history.end());
   assert(book.startState() == history[0]);
 
-  osl::MoveVector result;  
+  osl::MoveVector result;
   for (size_t i=0; i<history.size()-1; ++i) {
-    const WMoveContainer& moves = book.moves(history[i]);  
+    const WMoveContainer& moves = book.moves(history[i]);
     for (WMoveContainer::const_iterator p=moves.begin(); p!=moves.end(); ++p) {
       if (p->stateIndex() != history[i+1])
 	continue;
@@ -184,11 +184,11 @@ osl::MoveVector make_history(osl::book::WeightedBook& book, const std::vector<in
   return result;
 }
 
-void dump(osl::book::WeightedBook& book_a, const std::vector<int>& parents_a, int node_a, 
+void dump(osl::book::WeightedBook& book_a, const std::vector<int>& parents_a, int node_a,
 	  osl::book::WeightedBook& book_b, const std::vector<int>& parents_b, int node_b)
 {
   const osl::NumEffectState state(book_a.board(node_a));
-  osl::record::KanjiPrint printer(std::cout, 
+  osl::record::KanjiPrint printer(std::cout,
 				  std::shared_ptr<osl::record::Characters>(
 				    new osl::record::KIFCharacters())
     );
@@ -205,7 +205,7 @@ void dump(osl::book::WeightedBook& book_a, const std::vector<int>& parents_a, in
 void dump(const char *name, osl::book::WeightedBook& book, const std::vector<int>& parents, int node)
 {
   const osl::NumEffectState state(book.board(node));
-  osl::record::KanjiPrint printer(std::cout, 
+  osl::record::KanjiPrint printer(std::cout,
 				  std::shared_ptr<osl::record::Characters>(
 				    new osl::record::KIFCharacters())
     );
@@ -214,12 +214,12 @@ void dump(const char *name, osl::book::WeightedBook& book, const std::vector<int
   show_moves(name, book, node);
 }
 
-bool is_same_node(osl::book::WeightedBook& book_a, int node_a, 
+bool is_same_node(osl::book::WeightedBook& book_a, int node_a,
 		  osl::book::WeightedBook& book_b, int node_b)
 {
   WMoveContainer moves_a = book_a.moves(node_a);
   WMoveContainer moves_b = book_b.moves(node_b);
-  
+
   std::sort(moves_a.begin(), moves_a.end(), osl::book::WMoveWeightMoveSort());
   std::sort(moves_b.begin(), moves_b.end(), osl::book::WMoveWeightMoveSort());
 
@@ -246,7 +246,7 @@ void compare(osl::book::WeightedBook& book_a, const table_t& table_a, const std:
     if (q == table_b.end()) {
       ++only_a;
       if (dump_mode == "a")
-	dump("a", book_a, parents_a, p->second);	
+	dump("a", book_a, parents_a, p->second);
       continue;
     }
     if (is_same_node(book_a, p->second, book_b, q->second))
@@ -254,8 +254,8 @@ void compare(osl::book::WeightedBook& book_a, const table_t& table_a, const std:
     else {
       ++diff;
       if (dump_mode == "common")
-	dump(book_a, parents_a, p->second, 
-	     book_b, parents_b, q->second);	
+	dump(book_a, parents_a, p->second,
+	     book_b, parents_b, q->second);
     }
   }
   for (table_t::const_iterator p=table_b.begin(); p!=table_b.end(); ++p) {
@@ -263,7 +263,7 @@ void compare(osl::book::WeightedBook& book_a, const table_t& table_a, const std:
     if (q == table_a.end()) {
       ++only_b;
       if (dump_mode == "b")
-	dump("b", book_b, parents_b, p->second);	
+	dump("b", book_b, parents_b, p->second);
       continue;
     }
   }
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
 	argc, argv).options(command_line_options).positional(p).run(), vm);
     bp::notify(vm);
     filenames = vm["input-file"].as<std::vector<std::string> >();
-    if (vm.count("help") || filenames.size() != 2 
+    if (vm.count("help") || filenames.size() != 2
 	|| (dump_mode != "none" && dump_mode != "a" && dump_mode != "b" && dump_mode != "common"))
     {
       printUsage(std::cout, argv, command_line_options);

@@ -44,7 +44,7 @@ namespace osl
 {
   namespace search
   {
-    inline Ptype promoteIf(Ptype ptype) 
+    inline Ptype promoteIf(Ptype ptype)
     {
       return canPromote(ptype) ? promote(ptype) : ptype;
     }
@@ -58,13 +58,13 @@ namespace osl
       {
       }
       template <Player P>
-      bool highFail(int height, int threshold) const 
+      bool highFail(int height, int threshold) const
       {
 	return height <= limit && EvalTraits<P>::betterThan(value, threshold)
 	  && (type == Exact || type == LowerBound);
       }
       template <Player P>
-      bool lowFail(int height, int threshold) const 
+      bool lowFail(int height, int threshold) const
       {
 	return height <= limit && EvalTraits<P>::betterThan(threshold, value)
 	  && (type == Exact || type == UpperBound);
@@ -72,7 +72,7 @@ namespace osl
     };
     struct CompactHashTable	// todo: open hash
     {
-      typedef std::unordered_map<HashKey, CompactRecord, std::hash<HashKey>> table_t;
+      typedef std::unordered_map<HashKey, CompactRecord, stl::hash<HashKey>> table_t;
       table_t table;
       mutable int probe_success, probe_fail;
       CompactHashTable() : probe_success(0), probe_fail(0)
@@ -105,7 +105,7 @@ namespace osl
 }
 /* ------------------------------------------------------------------------- */
 // TODO: make shared? object
-namespace 
+namespace
 {
   boost::scoped_array<osl::search::AlphaBeta3::SearchInfo> tree;
   osl::search::CompactHashTable table;
@@ -138,7 +138,7 @@ AlphaBeta3(const NumEffectState& s, checkmate_t& /*checker*/,
   : state(s), depth(0), recorder(r), table_common(t)
 {
   if (! tree) {
-    rating::StandardFeatureSet::instance();    
+    rating::StandardFeatureSet::instance();
     tree.reset(new SearchInfo[MaxDepth]);
   }
 }
@@ -159,8 +159,8 @@ evalValue() const
 }
 
 osl::Move osl::search::AlphaBeta3::
-computeBestMoveIteratively(int limit, int /*step*/, int initial_limit, 
-			   size_t /*node_limit*/, 
+computeBestMoveIteratively(int limit, int /*step*/, int initial_limit,
+			   size_t /*node_limit*/,
 			   const TimeAssigned& assign,
 			   MoveWithComment */*additional_info*/)
 {
@@ -174,7 +174,7 @@ computeBestMoveIteratively(int limit, int /*step*/, int initial_limit,
   table.clear();
   eval_count = 0;
   init_node_count();
-  
+
   initial_limit = std::min(initial_limit, limit);
 
   // todo: iteration
@@ -186,8 +186,8 @@ computeBestMoveIteratively(int limit, int /*step*/, int initial_limit,
       double new_consumed = this->elapsed(), diff = new_consumed - consumed;
       consumed = new_consumed;
       if (table_common->verboseLevel() > 1)
-	std::cerr << i << " sec " << diff << " " << new_consumed 
-		  << " mpn " << mpn.average() << " " << mpn_cut.average() 
+	std::cerr << i << " sec " << diff << " " << new_consumed
+		  << " mpn " << mpn.average() << " " << mpn_cut.average()
 		  << " " << last_alpha_update.average() << "\n";
       best_move = searchRoot(i);
 
@@ -213,8 +213,8 @@ computeBestMoveIteratively(int limit, int /*step*/, int initial_limit,
   double new_consumed = this->elapsed(), diff = new_consumed - consumed;
   consumed = new_consumed;
   if (table_common->verboseLevel() > 1) {
-    std::cerr << "finish" << " sec " << diff << " " << new_consumed 
-	      << " mpn " << mpn.average() << " " << mpn_cut.average() 
+    std::cerr << "finish" << " sec " << diff << " " << new_consumed
+	      << " mpn " << mpn.average() << " " << mpn_cut.average()
 	      << " " << last_alpha_update.average() << "\n";
     std::cerr << "table " << table.table.size() << " " << table.probe_success << " " << table.probe_fail
 	      << "\n";
@@ -285,14 +285,14 @@ searchRoot(int limit)
 #else
   state.generateLegal(root.moves);
 #endif
-  
+
   Move best_move;
   const Player turn = state.turn();
   int best_value = minusInfty(turn);
   root.alpha = best_value + eval::delta(turn);
   root.beta = -minusInfty(turn) - eval::delta(turn);
   root.node_type = PvNode;
-  
+
   CompactRecord record = table.probe(root.hash_key);
   if (record.best_move.isNormal()) {
     MoveVector::iterator p
@@ -386,7 +386,7 @@ makeMoveAndSearch(Move move, int consume)
       return this->winByFoul(next_sennichite.winner());
   }
   // repetition_counter.push(node.hash_key, state);
-  
+
   CallSearch<P> f(this);
   node.path.pushMove(move);
   state.makeUnmakeMove(Player2Type<P>(), move, f);
@@ -438,8 +438,8 @@ presearch()
 		     || (depth > 2 && tree[depth-1].moved.ptype() == KING))
       ? 100 : 100;
     node.extended += ext;
-    node.height += ext;		
-  } 
+    node.height += ext;
+  }
   else if (depth > 1 && node.moved.to() == tree[depth-1].moved.to() && ! node.moved.isPass()) {
     const int ext = (node.alpha != node.beta
 		     || tree[depth-1].moved.isCapture())
@@ -503,7 +503,7 @@ presearch()
       const int height = node.height;
       for (int i=200; i+100<height; i+=200) {
 	node.height = i;
-	search<alt(P)>(); 
+	search<alt(P)>();
 	node.alpha = org_alpha;
 	node.node_type = PvNode;
       }
@@ -514,7 +514,7 @@ presearch()
   const bool best_move_extension_candidate
     = best_move_extension_enabled && root_player == P
     && node.height >= 150 && node.extended < 50;
-  const bool skip_main_search 
+  const bool skip_main_search
     = best_move_extension_candidate && pv_in_pvs;
   if (! skip_main_search)
     search<alt(P)>();
@@ -527,7 +527,7 @@ presearch()
     const int ext = 50;
     node.height += ext; node.extended += ext;
     search<alt(P)>();
-  }  
+  }
 }
 
 template <osl::Player P>
@@ -539,16 +539,16 @@ search()
 
   SearchInfo& node = tree[depth];
   assert(state.turn() == P);
-  recorder.addNodeCount();  
+  recorder.addNodeCount();
 
   if (node.height < 0) {
     quiesceRoot<P>();
     return;
   }
 
-  CompactRecord record = node.height >= table_record_limit 
+  CompactRecord record = node.height >= table_record_limit
     ? table.probe(node.hash_key)
-    : CompactRecord();  
+    : CompactRecord();
   if (node.alpha == node.beta) {
     if (record.highFail<P>(node.height, node.beta)) {
       node.search_value = record.value;
@@ -590,10 +590,10 @@ search()
 	  goto done;
 	}
       }
-    }    
+    }
     node.moves_tried++;
   }
-  if (immediate_checkmate_enabled && ! node.in_check && (frontier_node || extended_futility_pruning_enabled) 
+  if (immediate_checkmate_enabled && ! node.in_check && (frontier_node || extended_futility_pruning_enabled)
       && ImmediateCheckmate::hasCheckmateMove<P>(state)) {
     node.search_value = winByCheckmate(P);
     return;
@@ -611,10 +611,10 @@ search()
 	if (EvalTraits<P>::betterThan(best_value, futility)
 	    && (!tree[depth-1].in_check || !PlayerMoveAdaptor<DirectCheck>::isMember(state,move)))
 	  continue;
-      } 
+      }
       else if (extended_frontier_node && node.move_type > Killer) {
 	const int futility_base = evalValue()+ extended_futility_margin*EvalTraits<P>::delta;
-	if ((move.capturePtype() 
+	if ((move.capturePtype()
 	     && EvalTraits<P>::betterThan(best_value, futility_base+node.eval.captureValue(move.capturePtypeO())))
 	    || EvalTraits<P>::betterThan(best_value, futility_base+See::see(state, move)))
 	  if (!tree[depth-1].in_check || !PlayerMoveAdaptor<DirectCheck>::isMember(state,move))
@@ -692,7 +692,7 @@ osl::Move osl::search::AlphaBeta3::nextMove()
       // move_order::MoveSorter::sort(node.moves, move_order::CheapPtype());
     }
   case TakeBack:
-    if (node.move_index == 0 && node.moves.size()) 
+    if (node.move_index == 0 && node.moves.size())
       return node.moves[node.move_index++];
     node.move_type = Capture;	// fall through
     node.move_index = 0;
@@ -729,7 +729,7 @@ void osl::search::AlphaBeta3::
 generateAllMoves(const NumEffectState& state, const SearchInfo& parent, SearchInfo& node)
 {
   node.moves.clear();
-  if (cut_drop_move_in_frontier_node 
+  if (cut_drop_move_in_frontier_node
       && ! parent.in_check
       && ! node.in_check && node.node_type != PvNode) {
     if ((futility_pruning_enabled && node.height < 100)
@@ -741,7 +741,7 @@ generateAllMoves(const NumEffectState& state, const SearchInfo& parent, SearchIn
   }
 #if 1
 #  if 1
-  if (node.alpha != node.beta || node.height >= 800) { 
+  if (node.alpha != node.beta || node.height >= 800) {
     RatedMoveVector moves;
     const rating::StandardFeatureSet& features = rating::StandardFeatureSet::instance();
     RatingEnv env;
@@ -871,7 +871,7 @@ quiesceRoot()
     move_generator::GenerateEscape<P>::
       generate(state,state.kingPiece<P>(),node.moves);
     best_value = threatmatePenalty(P)+depth*EvalTraits<P>::delta*2;
-    
+
     for (Move move: node.moves) {
       int value = makeMoveAndQuiesce<P>(move);
       if (EvalTraits<P>::betterThan(value, best_value)) {
@@ -887,7 +887,7 @@ quiesceRoot()
     }
     goto done;
   } // end of in check
-  if (EvalTraits<P>::betterThan(best_value, node.beta)) 
+  if (EvalTraits<P>::betterThan(best_value, node.beta))
     goto done;
   if (immediate_checkmate_enabled && ImmediateCheckmate::hasCheckmateMove<P>(state)) {
     node.search_value = winByCheckmate(P);
@@ -921,7 +921,7 @@ quiesceRoot()
     }
   }
 done:
-  node.search_value = best_value;  
+  node.search_value = best_value;
 }
 
 template <osl::Player P>
@@ -971,7 +971,7 @@ quiesce()
       generate(state,state.kingPiece<P>(),node.moves);
 
     best_value = threatmatePenalty(P)+depth*EvalTraits<P>::delta*2;
-    
+
     for (Move move: node.moves) {
       int value = makeMoveAndQuiesce<P>(move);
       if (EvalTraits<P>::betterThan(value, best_value)) {
@@ -987,7 +987,7 @@ quiesce()
   } // end of in check
 
   // leaf
-  if (EvalTraits<P>::betterThan(best_value, node.beta)) 
+  if (EvalTraits<P>::betterThan(best_value, node.beta))
     goto done;
   if (immediate_checkmate_enabled && node.alpha != node.beta && ImmediateCheckmate::hasCheckmateMove<P>(state)) {
     node.search_value = winByCheckmate(P);
@@ -1020,7 +1020,7 @@ quiesce()
     }
   }
 done:
-  node.search_value = best_value;  
+  node.search_value = best_value;
 }
 
 /* ------------------------------------------------------------------------- */

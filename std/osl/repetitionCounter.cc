@@ -8,7 +8,7 @@
 
 
 typedef osl::RepetitionCounter::list_t list_t;
-typedef std::unordered_map<osl::HashKey,list_t,std::hash<osl::HashKey>> map_t;
+typedef std::unordered_map<osl::HashKey,list_t,stl::hash<osl::HashKey>> map_t;
 
 struct osl::RepetitionCounter::Table : public map_t
 {
@@ -17,7 +17,7 @@ struct osl::RepetitionCounter::Table : public map_t
 static const int initial_capacity = 256;
 
 void osl::RepetitionCounter::
-clear() 
+clear()
 {
   table->clear();
   continuous_check[0].clear();
@@ -26,7 +26,7 @@ clear()
 
   continuous_check[0].reserve(initial_capacity);
   continuous_check[1].reserve(initial_capacity);
-  
+
   continuous_check[0].push_back(0);
   continuous_check[1].push_back(0);
 }
@@ -39,7 +39,7 @@ RepetitionCounter() : table(new Table()), hash_history(initial_capacity)
 
 osl::RepetitionCounter::
 RepetitionCounter(const RepetitionCounter& c)
-  : continuous_check(c.continuous_check), 
+  : continuous_check(c.continuous_check),
     hash_history(c.hash_history)
 {
   if (c.table)
@@ -106,12 +106,12 @@ push(const NumEffectState& state, Move move)
 {
   assert(move.isValidOrPass());
   assert(state.turn() == move.player());
-  
+
   HashKey key(state);
   key = key.newHashWithMove(move);
 
   // 指した後の王手を検出
-  const bool is_check 
+  const bool is_check
     = (!move.isPass()) && state.isCheck(move);
   push(key, is_check);
 }
@@ -123,7 +123,7 @@ pop()
   assert(hash_history.size()>0);
   const HashKey last_key = hash_history.top();
   hash_history.pop();
-  
+
   const Player last_turn = alt(last_key.turn());
   assert(! continuous_check[last_turn].empty());
   continuous_check[last_turn].pop_back();
@@ -228,7 +228,7 @@ isConsistent() const
   {
     const HashKey last_key = history.top();
     history.pop();
-  
+
     const Player last_turn = alt(last_key.turn());
     assert(! continuous_check[last_turn].empty());
     continuous_check[last_turn].pop_back();

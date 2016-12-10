@@ -18,7 +18,7 @@ namespace osl
      */
     class CheckDuplicate
     {
-      typedef std::unordered_map<HashKey, std::vector<PathEncoding>, std::hash<HashKey>> keymap_t;
+      typedef std::unordered_map<HashKey, std::vector<PathEncoding>, stl::hash<HashKey>> keymap_t;
       /** container of moves */
       keymap_t keys;
       /** couter for registing (trials) */
@@ -46,7 +46,7 @@ namespace osl
        */
       CheckDuplicate()
         : regist_counter(0),
-          duplicated_hash_counter(0), 
+          duplicated_hash_counter(0),
           duplicated_moves_counter(0)
       {}
 
@@ -54,13 +54,13 @@ namespace osl
        * Insert a key if the key is new. The key is the last state of the
        * moves.
        *
-       * @param moves 
-       * @return false if (i) the key is new or (ii) duplicated with 
+       * @param moves
+       * @return false if (i) the key is new or (ii) duplicated with
        * different moves; true if the moves are exactly found in this
-       * container. 
+       * container.
        */
       DUPLICATE_RESULT regist(const std::vector<Move>& moves);
-      
+
       /**
        * Output the result
        */
@@ -90,12 +90,12 @@ namespace osl
        * Insert a key if the key is new.
        *
        * @param key a hash key of the last state of the moves
-       * @param moves 
-       * @return false if (i) the key is new or (ii) duplicated with 
+       * @param moves
+       * @return false if (i) the key is new or (ii) duplicated with
        * different moves; true if the moves are exactly found in this
-       * container. 
+       * container.
        */
-      DUPLICATE_RESULT regist(const HashKey& key, 
+      DUPLICATE_RESULT regist(const HashKey& key,
                               const PathEncoding& moves);
     };
 

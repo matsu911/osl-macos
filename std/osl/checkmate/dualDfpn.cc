@@ -55,15 +55,15 @@ struct osl::checkmate::DualDfpn::OraclePool
   };
 #ifdef OSL_SMP
   mutable std::mutex mutex;
-#endif  
-  typedef std::unordered_map<HashKey, List, std::hash<HashKey>> table_t;
+#endif
+  typedef std::unordered_map<HashKey, List, stl::hash<HashKey>> table_t;
   table_t table;
   Player defender;
-  void setAttack(Player attack) 
+  void setAttack(Player attack)
   {
     defender = alt(attack);
   }
-  void addProof(const NumEffectState& state, const HashKey& key, PieceStand proof_pieces) 
+  void addProof(const NumEffectState& state, const HashKey& key, PieceStand proof_pieces)
   {
     const Dfpn::ProofOracle oracle(key, PieceStand(WHITE, state));
     const std::pair<HashKey,HashKey> king = makeLargeKey(state);
@@ -111,7 +111,7 @@ struct osl::checkmate::DualDfpn::OraclePool
     const Square target_king=state.kingSquare(defender);
     const Square center = Centering3x3::adjustCenter(target_king);
     HashKey key;
-    HashGenTable::addHashKey(key, center, 
+    HashGenTable::addHashKey(key, center,
 				    state.pieceOnBoard(center).ptypeO());
     addKey<UL>(key, state, center); addKey<U> (key, state, center);
     addKey<UR>(key, state, center);
@@ -125,7 +125,7 @@ struct osl::checkmate::DualDfpn::OraclePool
     HashKey key_small = makeKey(state), key_large;
     const Square target_king=state.kingSquare(defender);
     const Square center = Centering5x3::adjustCenter(target_king);
-    HashGenTable::addHashKey(key_large, center, 
+    HashGenTable::addHashKey(key_large, center,
 				    state.pieceOnBoard(center).ptypeO());
     addKey<UL>(key_large, state, center); addKey<U> (key_large, state, center);
     addKey<UR>(key_large, state, center);
@@ -159,7 +159,7 @@ struct osl::checkmate::DualDfpn::Shared
   std::unique_ptr<DfpnParallel> parallel_search;
 #endif
   typedef std::forward_list<PathEncoding> disproof_list_t;
-  typedef std::unordered_map<HashKey, disproof_list_t, std::hash<HashKey>> disproof_table_t;
+  typedef std::unordered_map<HashKey, disproof_list_t, stl::hash<HashKey>> disproof_table_t;
   disproof_table_t disproof_table;
 
   Shared() : main_node_count(0), simulation_count(0), last_gc(0), gc_threshold(10),
@@ -181,7 +181,7 @@ struct osl::checkmate::DualDfpn::Shared
 #ifdef DFPN_DEBUG
       std::cerr << "shared " << main_node_count << " " << simulation_count << "\n";
       for (stat::Average& a: proof_by_oracle)
-	std::cerr << a.getAverage() 
+	std::cerr << a.getAverage()
 		  << " " << (int)(a.getAverage()*a.numElements()) << "\n";
       std::cerr << "oracles " << pool[BLACK].table.size() << " " << pool[WHITE].table.size() << "\n";
       std::cerr << "table " << table[0].totalSize() << " " << table[1].totalSize() << "\n";
@@ -208,7 +208,7 @@ struct osl::checkmate::DualDfpn::Shared
   {
     TableUseLock(const TableUseLock&) = delete;
     TableUseLock& operator=(const TableUseLock&) = delete;
-    
+
     Shared *shared;
     explicit TableUseLock(Shared *s) : shared(s)
     {
@@ -360,7 +360,7 @@ DualDfpn::runGC(bool verbose, size_t memory_use_ratio_1000)
 #  endif
     }
   }
-  if (! verbose) 
+  if (! verbose)
     return;
   const double elapsed = elapsedSeconds(start);
   if (removed > 10000 || elapsed > 0.1)
@@ -375,7 +375,7 @@ DualDfpn::runGC(bool verbose, size_t memory_use_ratio_1000)
 
 template <osl::Player P>
 osl::ProofDisproof osl::checkmate::
-DualDfpn::findProof(int node_limit, const NumEffectState& state, 
+DualDfpn::findProof(int node_limit, const NumEffectState& state,
 		    const HashKey& key, const PathEncoding& path,
 		    Move& best_move, Move last_move)
 {
@@ -403,12 +403,12 @@ DualDfpn::findProof(int node_limit, const NumEffectState& state,
 #endif
       shared->proof_by_oracle[i].add(pdp.isCheckmateSuccess());
     }
-    if (pdp.isCheckmateSuccess()) 
+    if (pdp.isCheckmateSuccess())
       assert(best_move.isNormal());
     if (pdp.isFinal())
       return pdp;
   }
-  if (node_limit == 0 && num_tried) 
+  if (node_limit == 0 && num_tried)
     return ProofDisproof(1,1);			// already tested table
   const ProofDisproof table_pdp = dfpn.hasCheckmateMove(state, key, path, 0, best_move, last_move);
   if (table_pdp.isCheckmateSuccess())
@@ -477,7 +477,7 @@ DualDfpn::findProof(int node_limit, const NumEffectState& state,
 }
 
 osl::checkmate::ProofDisproof osl::checkmate::
-DualDfpn::findProof(int node_limit, const NumEffectState& state, 
+DualDfpn::findProof(int node_limit, const NumEffectState& state,
 		    const HashKey& key, const PathEncoding& path,
 		    Move& best_move, Move last_move)
 {
@@ -488,7 +488,7 @@ DualDfpn::findProof(int node_limit, const NumEffectState& state,
 }
 
 bool osl::checkmate::
-DualDfpn::isWinningState(int node_limit, const NumEffectState& state, 
+DualDfpn::isWinningState(int node_limit, const NumEffectState& state,
 			   const HashKey& key, const PathEncoding& path,
 			   Move& best_move, Move last_move)
 {
@@ -499,7 +499,7 @@ DualDfpn::isWinningState(int node_limit, const NumEffectState& state,
 #ifdef OSL_DFPN_SMP
 template <osl::Player P>
 bool osl::checkmate::
-DualDfpn::isWinningStateParallel(int node_limit, const NumEffectState& state, 
+DualDfpn::isWinningStateParallel(int node_limit, const NumEffectState& state,
 				 const HashKey& key, const PathEncoding& path,
 				 Move& best_move, Move last_move)
 {
@@ -534,7 +534,7 @@ DualDfpn::isWinningStateParallel(int node_limit, const NumEffectState& state,
 }
 
 bool osl::checkmate::
-DualDfpn::isWinningStateParallel(int node_limit, const NumEffectState& state, 
+DualDfpn::isWinningStateParallel(int node_limit, const NumEffectState& state,
 				 const HashKey& key, const PathEncoding& path,
 				 Move& best_move, Move last_move)
 {
@@ -548,7 +548,7 @@ DualDfpn::isWinningStateParallel(int node_limit, const NumEffectState& state,
 template <osl::Player P>
 bool
  osl::checkmate::
-DualDfpn::isLosingState(int node_limit, const NumEffectState& state, 
+DualDfpn::isLosingState(int node_limit, const NumEffectState& state,
 			const HashKey& key, const PathEncoding& path,
 			Move last_move)
 {
@@ -563,7 +563,7 @@ DualDfpn::isLosingState(int node_limit, const NumEffectState& state,
 }
 
 bool osl::checkmate::
-DualDfpn::isLosingState(int node_limit, const NumEffectState& state, 
+DualDfpn::isLosingState(int node_limit, const NumEffectState& state,
 			  const HashKey& key, const PathEncoding& path,
 			  Move last_move)
 {
