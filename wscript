@@ -8,7 +8,7 @@ def configure(ctx):
 
 def build(ctx):
     ctx.shlib(source=ctx.path.ant_glob('core/osl/**/*.cc'),
-              cxxflags=['-std=c++14', '-stdlib=libc++'],
+              cxxflags=['-std=c++14', '-stdlib=libc++', '-O3'],
               includes=['core'],
               lib=['boost_filesystem',
                    'boost_serialization',
@@ -17,7 +17,7 @@ def build(ctx):
               defines=['OSL_HOME="."'],
               target='osl-core')
     ctx.shlib(source=ctx.path.ant_glob('std/osl/**/*.cc'),
-              cxxflags=['-std=c++14', '-stdlib=libc++'],
+              cxxflags=['-std=c++14', '-stdlib=libc++', '-O3'],
               includes=['core', 'std'],
               use=['osl-core'],
               lib=['iconv',
@@ -26,12 +26,12 @@ def build(ctx):
                    'boost_date_time'],
               target='osl-std')
     ctx.shlib(source=ctx.path.ant_glob('full/osl/misc/**/*.cc'),
-              cxxflags=['-std=c++14', '-stdlib=libc++'],
+              cxxflags=['-std=c++14', '-stdlib=libc++', '-O3'],
               includes=['core', 'std', 'full'],
               use=['osl-core'],
               target='osl-full')
     ctx.program(source='sample/checkmate/dfpnstat.cc',
                 use=['osl-core', 'osl-std', 'osl-full'],
                 includes=['core', 'std', 'full'],
-                cxxflags=['-std=c++14', '-stdlib=libc++'],
+                cxxflags=['-std=c++14', '-stdlib=libc++', '-O3'],
                 target='dfpnstat')
