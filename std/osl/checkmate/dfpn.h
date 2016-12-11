@@ -8,6 +8,7 @@
 #include "osl/pathEncoding.h"
 #include "osl/config.h"
 #include <boost/scoped_array.hpp>
+#include <vector>
 
 #ifdef OSL_SMP
 #  ifndef OSL_DFPN_SMP
