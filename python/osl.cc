@@ -36,7 +36,6 @@ double total_nodes=0, total_tables=0;
 int limit = 100000;
 bool blocking_verify = true;
 size_t table_growth_limit = 8000000;
-bool debug = false;
 int forward_moves = 0;
 
 template<class DfpnSearch>
@@ -54,8 +53,6 @@ int dfpnstat(boost::python::list& argv) {
     //             case 's':   dovetailing_seed = static_cast<unsigned int>(atoi(optarg));
     //                 break;
     //             case 'p':   dovetailing_prob = static_cast<unsigned int>(atoi(optarg));
-    //                 break;
-    //             case 'd': debug = true;
     //                 break;
     //             case 'f': force_attack = true;
     //                 break;
@@ -100,42 +97,6 @@ int dfpnstat(boost::python::list& argv) {
 }
 
 double real_seconds = 0.0;
-
-template <class DfpnSearch>
-void analyzeCheckmate(DfpnSearch& searcher, const NumEffectState& state, Move checkmate_move)
-{
-    NumEffectState new_state = state;
-    std::cerr << state << " " << checkmate_move << "\n";
-    new_state.makeMove(checkmate_move);
-    HashKey key(new_state);
-    const DfpnTable& table = searcher.currentTable();
-    DfpnRecordBase record = table.probe(key, PieceStand(WHITE, new_state));
-    std::cerr << record.proof_disproof << " " << std::bitset<64>(record.solved) << "\n";
-
-    MoveVector moves;
-    new_state.generateLegal(moves);
-    for (size_t i=0; i<moves.size(); ++i) {
-        NumEffectState tmp = new_state;
-        tmp.makeMove(moves[i]);
-        DfpnRecordBase record = table.probe(key.newHashWithMove(moves[i]), PieceStand(WHITE, tmp));
-        std::cerr << moves[i] << " " << record.proof_disproof << " " << record.best_move << "\n";
-    }
-
-    {
-        Dfpn::DfpnMoveVector moves;
-        if (state.turn() == BLACK)
-            Dfpn::generateEscape<BLACK>(new_state, false, Square(), moves);
-        else
-            Dfpn::generateEscape<WHITE>(new_state, false, Square(), moves);
-        std::cerr << "Escape " << moves.size()<< "\n";
-        moves.clear();
-        if (state.turn() == BLACK)
-            Dfpn::generateEscape<BLACK>(new_state, true, Square(), moves);
-        else
-            Dfpn::generateEscape<BLACK>(new_state, true, Square(), moves);
-        std::cerr << "Escape full " << moves.size() << "\n";
-    }
-}
 
 template <class DfpnSearch>
 void testWinOrLose(const std::string& filename,
@@ -199,19 +160,12 @@ void testWinOrLose(const std::string& filename,
             if (pv.size() % 6 != 0)
                 std::cerr << "\n";
         }
-        if (debug) {
-            // analyzeCheckmate(searcher, state, checkmate_move);
-            if (! moves.empty())
-                searcher.analyze(path, state, moves);
-        }
     }
     else {
         if (result.isFinal())
             ++num_nocheckmate;
         else
             ++num_unkown;
-        if (debug)
-            searcher.analyze(path, state, moves);
     }
 }
 
@@ -228,8 +182,7 @@ void search(DfpnSearch& searcher, const std::string &filename)
         for (int i=0; i<forward_here; ++i)
             state.makeMove(moves[i]);
         moves.erase(moves.begin(), moves.begin()+forward_here);
-    }
-    catch (CsaIOError&) {
+    } catch (CsaIOError&) {
         std::cerr << "\nskipping " << filename << "\n";
         return;
     }
@@ -251,8 +204,7 @@ void search(DfpnSearch& searcher, const std::string &filename)
     total_tables += table_used;
 
     if (verbose) {
-        PerfMon::message(total_cycles, "total ",
-                         searcher.nodeCount());
+        PerfMon::message(total_cycles, "total ", searcher.nodeCount());
         PerfMon::message(total_cycles, "unique", table_used);
         std::cerr << "real " << real_seconds << " sec. nps " << searcher.nodeCount()/real_seconds << "\n";
     }
