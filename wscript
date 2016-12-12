@@ -39,7 +39,7 @@ def build(ctx):
               includes=['core', 'std', 'full'],
               use=['osl-core', 'osl-std', 'osl-full', 'PYTHON'],
               lib=['boost_python'],
-              target='hello_ext')
+              target='osl')
     ctx.program(source='sample/checkmate/dfpnstat.cc',
                 use=['osl-core', 'osl-std', 'osl-full'],
                 includes=['core', 'std', 'full'],
