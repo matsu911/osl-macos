@@ -37,7 +37,7 @@ def build(ctx):
     ctx.shlib(source=ctx.path.ant_glob('python/**/*.cc'),
               env=env,
               includes=['core', 'std', 'full'],
-              use=['osl-core', 'PYTHON'],
+              use=['osl-core', 'osl-std', 'osl-full', 'PYTHON'],
               lib=['boost_python'],
               target='hello_ext')
     ctx.program(source='sample/checkmate/dfpnstat.cc',
