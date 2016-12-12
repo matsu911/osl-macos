@@ -1,6 +1,7 @@
 makefile.local
 release
 .svn
+*~
 *.diff
 *.log
 *.swp
