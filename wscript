@@ -39,9 +39,6 @@ def build(ctx):
               includes=['core', 'std', 'full'],
               use=['osl-core', 'PYTHON'],
               lib=['boost_python'],
-              pattern="%s.so",
-              cxxshlib_PATTERN="%s.so",
-              cshlib_PATTERN="%s.so",
               target='hello_ext')
     ctx.program(source='sample/checkmate/dfpnstat.cc',
                 use=['osl-core', 'osl-std', 'osl-full'],
